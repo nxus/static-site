@@ -1,0 +1,44 @@
+{
+  "name": "@nxus/static-site",
+  "version": "1.0.0",
+  "description": "A static site generator for Nxus",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --compilers js:babel/register -R spec test/index.js",
+    "compile": "babel --optional runtime -d lib/ src/",
+    "prepublish": "npm run compile"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nxus/static-site.git"
+  },
+  "keywords": [
+    "static",
+    "site",
+    "nxus"
+  ],
+  "author": "mjreich",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nxus/static-site/issues"
+  },
+  "homepage": "https://github.com/nxus/static-site#readme",
+  "dependencies": {
+    "async": "^1.5.0",
+    "babel-runtime": "^6.0.14",
+    "fast-csv": "^0.6.0",
+    "front-matter": "^2.0.0",
+    "fs-extra": "^0.26.2",
+    "glob": "^5.0.15",
+    "js-yaml": "^3.4.3",
+    "limax": "^1.1.4",
+    "moment-strftime": "^0.1.5",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "babel": "^5.6.23",
+    "mocha": "^2.2.5",
+    "should": "^7.0.2",
+    "@nxus/core": "^1.0.0"
+  }
+}
