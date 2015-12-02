@@ -41,18 +41,16 @@ const _renderExtensions = {
 
 const REGEX_FILE = /[^\/]$/;
 
-var app;
-
 class Generator {
-  constructor (a, loaded) {
-    app = a;
+  constructor (app) {
+    this.app = app;
     app.log('Init Static Site Generator')
 
-    app.on('app.load', () => {
+    app.on('load').then(() => {
       this.opts = _.extend(_defaultOpts, app.config.staticSite);
     })
 
-    app.on('app.startup', () => {
+    app.on('startup').then(() => {
       app.log('Static Site Generator Startup')
       app.log('Generating Static Files')
 
@@ -62,8 +60,8 @@ class Generator {
       });      
     })
 
-    app.on('app.launch', () => {
-      app.emit('router.setStatic', "/", this.opts.output)
+    app.on('launch').then(() => {
+      app.get('router').send('setStatic').with("/", this.opts.output);
     })
   }
 
@@ -73,7 +71,7 @@ class Generator {
       this._processLayoutFiles.bind(this),
       this._processRegularFiles.bind(this),
       this._processCollectionFiles.bind(this)
-    ], () => {app.log('Done generating content')});
+    ], () => {this.app.log('Done generating content')});
   }
 
   _processDataFiles (callback) {
@@ -116,7 +114,7 @@ class Generator {
         cb()
       }
     } catch (e) {
-      app.log.error(e)
+      this.app.log.error(e)
       cb()
     } 
   }
@@ -225,7 +223,7 @@ class Generator {
 
   _render (type, content, opts, cb) {
     if(opts.page.filename) opts.filename = opts.page.filename
-    app.emit('renderer.render', type, content, opts, cb);
+    this.app.get('renderer').send('render').with(type, content, opts, cb);
   }
 
   _renderContent (type, content, opts, cb) {
