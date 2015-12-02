@@ -21,6 +21,10 @@ import slug from 'limax';
 import yaml from 'js-yaml';
 import parse from 'fast-csv';
 
+import Promise from 'bluebird';
+Promise.promisifyAll(fse);
+var globAsync = Promise.promisify(glob);
+
 const _defaultOpts = {
   source: './src',
   output: './site',
@@ -54,10 +58,10 @@ class Generator {
       app.log('Static Site Generator Startup')
       app.log('Generating Static Files')
 
-      fse.remove(this.opts.output, () => {
+      return fse.removeAsync(this.opts.output).then(() => {
         fse.ensureDirSync(this.opts.output);
-        this._process();
-      });      
+        return this._process();
+      });
     })
 
     app.on('launch').then(() => {
@@ -66,63 +70,57 @@ class Generator {
   }
 
   _process() {
-    async.series([
+    return Promise.all([
       this._processDataFiles.bind(this),
       this._processLayoutFiles.bind(this),
       this._processRegularFiles.bind(this),
       this._processCollectionFiles.bind(this)
-    ], () => {this.app.log('Done generating content')});
+    ]).then( () => {this.app.log('Done generating content')} );
   }
 
-  _processDataFiles (callback) {
+  _processDataFiles () {
     var src = fs.realpathSync(this.opts.source);
     var chain = [];
-    this._getFiles(src, "_data/*", (err, files) => {
+    return this._getFiles(src, "_data/*").then( (files) => {
       files.forEach((file) => {
-        if(node_path.basename(file)[0] != ".") chain.push((cb) => this._processDataFile(node_path.join(src, file), cb));
+        if(node_path.basename(file)[0] != ".") chain.push(this._processDataFile(node_path.join(src, file)));
       })
-      async.series(chain, callback);
+      return Promise.all(chain);
     });
   }
 
-  _processDataFile(file, cb) {
+  _processDataFile(file) {
     //read file
     var data = {};
     var content = fs.readFileSync(file);
     var ext = node_path.extname(file);
-    try {
+    return Promise.try(() => {
       if(ext == ".csv") {
         data = [];
-        parse
-         .fromString(content, {headers: true})
-         .on("data", (d) => {
+        var p = parse.fromString(content, {headers: true});
+        pon = Promise.promisify(p.on);
+        pon("data").then((d) => {
              data.push(d)
-         })
-         .on("end", () => {
+         });
+        return pon("end").then(() => {
             this.opts.data[node_path.basename(file, ext)] = data;
-            cb()
          });
       } else if(ext == ".yaml" || ext == ".yml") {
         data = yaml.safeLoad(content.toString());
         this.opts.data[node_path.basename(file, ext)] = data;
-        cb()
       } else if(ext == ".json") {
         data = JSON.parse(content.toString());
         this.opts.data[node_path.basename(file, ext)] = data;
-        cb()
-      } else {
-        cb()
       }
-    } catch (e) {
+    }).catch((e) => {
       this.app.log.error(e)
-      cb()
-    } 
+    });
   }
 
-  _processLayoutFiles (callback) {
+  _processLayoutFiles () {
     this._layouts = {}
     var src = fs.realpathSync(this.opts.source);
-    this._getFiles(src, "_layouts/*", (err, files) => {
+    return this._getFiles(src, "_layouts/*").then((files) => {
       files.forEach((file) => {
         if(node_path.basename(file)[0] == ".") return;
         var name = node_path.basename(file.replace("_layouts/", ""), node_path.extname(file));
@@ -130,40 +128,39 @@ class Generator {
         opts.type = node_path.extname(file).replace(".", "")
         this._layouts[name] = opts;
       })
-      this._postProcessLayoutFiles(callback);
+      return this._postProcessLayoutFiles();
     });
   }
 
-  _postProcessLayoutFiles (callback) {
+  _postProcessLayoutFiles () {
     var chain = [];
     _.each(this._layouts, (layout, name) => {
-      if(layout.attributes && layout.attributes.template) chain.push((cb) => this._postProcessLayoutFile(name, layout, cb))
+      if(layout.attributes && layout.attributes.template) chain.push(this._postProcessLayoutFile(name, layout));
     })
-    async.series(chain, callback)
+    return Promise.all(chain);
   }
 
-  _postProcessLayoutFile (name, layout, callback) {
-    this._renderLayout(layout.type, layout.body, layout.attributes, (err, content) => {
+  _postProcessLayoutFile (name, layout) {
+    return this._renderLayout(layout.type, layout.body, layout.attributes).then( (content) => {
       var layoutCopy = this._layouts[name];
       layoutCopy.body = content;
       this._layouts[name] = layoutCopy;
-      callback();
-    })
-  }
-
-  _processRegularFiles (callback) {
-    var src = fs.realpathSync(this.opts.source);
-    var dest = fs.realpathSync(this.opts.output);
-    var chain = [];
-    this._getFiles(src, "**/*", "_*/*", (err, files) => {
-      files.forEach((file) => {
-        if(node_path.basename(file)[0] != ".") chain.push((cb) => this._processRegularFile(src, dest, file, cb));
-      })
-      async.series(chain, callback);
     });
   }
 
-  _processRegularFile(path, dest, file, cb) {
+  _processRegularFiles () {
+    var src = fs.realpathSync(this.opts.source);
+    var dest = fs.realpathSync(this.opts.output);
+    var chain = [];
+    return this._getFiles(src, "**/*", "_*/*").then( (files) => {
+      files.forEach((file) => {
+        if(node_path.basename(file)[0] != ".") chain.push(this._processRegularFile(src, dest, file));
+      })
+      return Promise.all(chain);
+    });
+  }
+
+  _processRegularFile(path, dest, file) {
     var src = node_path.join(path, file);
     var ext = node_path.extname(file).replace(".", "");
     var parsedPage = this._getFrontMatter(src);
@@ -175,29 +172,29 @@ class Generator {
     var body = parsedPage.body || "";
 
     if(_.contains(_.keys(_renderExtensions), ext)) {
-      this._renderContent(ext, body, pageOpts, (err, content) => {
-        fse.outputFile(dest, content, cb);
+      return this._renderContent(ext, body, pageOpts).then((content) => {
+        return fse.outputFileAsync(dest, content);
       })
     } else {
-      fse.copy(src, dest, cb);
+      return fse.copyAsync(src, dest);
     }
   }
 
-  _processCollectionFiles (callback) {
+  _processCollectionFiles () {
     var src = fs.realpathSync(this.opts.source);
     var dest = fs.realpathSync(this.opts.output);
     var chain = [];
-    this._getFiles(src, "_*/*", (err, files) => {
+    this._getFiles(src, "_*/*").then( (files) => {
       files.forEach((file) => {
         var name = file.split(node_path.sep)[0]
         if(_.contains(_.keys(this.opts.collections), name))
-          if(node_path.basename(file)[0] != ".") chain.push((cb) => this._processCollectionFile(src, dest, file, cb));
+          if(node_path.basename(file)[0] != ".") chain.push(this._processCollectionFile(src, dest, file));
       })
-      async.series(chain, callback);
+      return Promise.all(chain);
     });
   }
 
-  _processCollectionFile (path, dest, file, cb) {
+  _processCollectionFile (path, dest, file) {
     // set new destination name
     var src = node_path.join(path, file);
     var collection = file.split(node_path.sep)[0];
@@ -215,29 +212,29 @@ class Generator {
     // run file through template
     var body = parsedPage.body || "";
 
-    this._renderContent(ext, body, pageOpts, (err, content) => {
-      fse.outputFile(dest, content, cb);
+    return this._renderContent(ext, body, pageOpts).then((content) => {
+      return fse.outputFileAsync(dest, content);
     })
     // write file to new destination
   }
 
-  _render (type, content, opts, cb) {
+  _render (type, content, opts) {
     if(opts.page.filename) opts.filename = opts.page.filename
-    this.app.get('renderer').send('render').with(type, content, opts, cb);
+    return this.app.get('renderer').send('render').with(type, content, opts);
   }
 
-  _renderContent (type, content, opts, cb) {
+  _renderContent (type, content, opts) {
     if(!opts.page.layout) opts.page.layout = 'default';
     var body = this._layouts[opts.page.layout].body;
     var t = this._layouts[opts.page.layout].type;
-    this._render(type, content, opts, (err, rContent) => {
+    return this._render(type, content, opts).then( (rContent) => {
       opts.content = rContent
-      this._renderLayout(t, body, opts, cb);
-    })
+      return this._renderLayout(t, body, opts);
+    });
   }
 
-  _renderLayout (type, content, opts, cb) {
-    this._render(type, content, opts, cb);
+  _renderLayout (type, content, opts) {
+    return this._render(type, content, opts);
   }
 
   _getFrontMatter(src) {
@@ -261,24 +258,17 @@ class Generator {
     return to
   }
 
-  _getFiles(src, pattern, ignore, callback) {
+  _getFiles(src, pattern, ignore) {
     var opts = {
       cwd: src,
       dot: true,
       mark: true
     }
 
-    if(!callback) 
-      callback = ignore
-    else 
-      opts.ignore = ignore
+    opts.ignore = ignore
 
-    glob(pattern, opts, (err, files) => {
-      if (err) {
-        return callback(err);
-      }
-      files = files.filter(REGEX_FILE.test, REGEX_FILE);
-      callback(null, files);
+    return globAsync(pattern, opts).then((files) => {
+      return files.filter(REGEX_FILE.test, REGEX_FILE);
     });
   }
 }
