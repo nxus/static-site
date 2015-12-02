@@ -1,10 +1,10 @@
 {
   "name": "@nxus/static-site",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A static site generator for Nxus",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --compilers js:babel/register -R spec test/index.js",
+    "test": "mocha --compilers js:babel/register -R spec test/*",
     "compile": "babel --optional runtime -d lib/ src/",
     "prepublish": "npm run compile"
   },
@@ -35,10 +35,13 @@
     "moment-strftime": "^0.1.5",
     "underscore": "^1.8.3"
   },
+  "peerDependencies": {
+    "@nxus/core": "^2.0.0"
+  },
   "devDependencies": {
+    "@nxus/core": "^2.0.0",
     "babel": "^5.6.23",
     "mocha": "^2.2.5",
-    "should": "^7.0.2",
-    "@nxus/core": "^1.0.0"
+    "should": "^7.0.2"
   }
 }
