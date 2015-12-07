@@ -49,11 +49,11 @@ class Generator {
     this.app = app;
     app.log('Init Static Site Generator')
 
-    app.on('load').then(() => {
+    app.once('load', () => {
       this.opts = _.extend(_defaultOpts, app.config.staticSite);
     })
 
-    app.on('startup').then(() => {
+    app.once('startup', () => {
       app.log('Static Site Generator Startup')
       app.log('Generating Static Files')
 
@@ -63,18 +63,17 @@ class Generator {
       });
     })
 
-    app.on('launch').then(() => {
+    app.once('launch', () => {
       app.get('router').send('setStatic').with("/", this.opts.output);
     })
   }
 
   _process() {
-    return Promise.all([
-      this._processDataFiles(),
-      this._processLayoutFiles(),
-      this._processRegularFiles(),
-      this._processCollectionFiles()
-    ]).then( () => {this.app.log('Done generating content')} );
+    return this._processDataFiles()
+      .then(this._processLayoutFiles)
+      .then(this._processRegularFiles)
+      .then(this._processCollectionFiles)
+      .then( () => {this.app.log('Done generating content')} );
   }
 
   _processDataFiles () {
@@ -122,6 +121,7 @@ class Generator {
   }
 
   _processLayoutFiles () {
+    console.log("data", this.opts.data);
     this._layouts = {}
     var src = fs.realpathSync(this.opts.source);
     return this._getFiles(src, "_layouts/*").then((files) => {
@@ -224,7 +224,7 @@ class Generator {
 
   _render (type, content, opts) {
     if(opts.page.filename) opts.filename = opts.page.filename
-    return this.app.get('renderer').emit('render').with(type, content, opts);
+    return this.app.get('renderer').emit('render').with(type, content, opts).spread((result) => { return result; });
   }
 
   _renderContent (type, content, opts) {
