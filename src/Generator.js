@@ -11,7 +11,6 @@ import util from 'util'
 import fs from 'fs'
 import fse from 'fs-extra';
 import glob from 'glob';
-import async from 'async';
 import fm from 'front-matter';
 
 import node_path from 'path';
@@ -71,10 +70,10 @@ class Generator {
 
   _process() {
     return Promise.all([
-      this._processDataFiles.bind(this),
-      this._processLayoutFiles.bind(this),
-      this._processRegularFiles.bind(this),
-      this._processCollectionFiles.bind(this)
+      this._processDataFiles(),
+      this._processLayoutFiles(),
+      this._processRegularFiles(),
+      this._processCollectionFiles()
     ]).then( () => {this.app.log('Done generating content')} );
   }
 
@@ -97,14 +96,19 @@ class Generator {
     return Promise.try(() => {
       if(ext == ".csv") {
         data = [];
-        var p = parse.fromString(content, {headers: true});
-        pon = Promise.promisify(p.on);
-        pon("data").then((d) => {
-             data.push(d)
-         });
-        return pon("end").then(() => {
+        return new Promise((resolve, reject) => {
+          var p = parse.fromString(content, {headers: true});
+          p.on("data", (d) => {
+            data.push(d)
+          });
+          p.on("end", () => {
             this.opts.data[node_path.basename(file, ext)] = data;
-         });
+            resolve();
+          });
+          p.on("error", (e) => {
+            reject(e);
+          })
+        });
       } else if(ext == ".yaml" || ext == ".yml") {
         data = yaml.safeLoad(content.toString());
         this.opts.data[node_path.basename(file, ext)] = data;
@@ -220,7 +224,7 @@ class Generator {
 
   _render (type, content, opts) {
     if(opts.page.filename) opts.filename = opts.page.filename
-    return this.app.get('renderer').send('render').with(type, content, opts);
+    return this.app.get('renderer').emit('render').with(type, content, opts);
   }
 
   _renderContent (type, content, opts) {
