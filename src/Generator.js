@@ -70,9 +70,9 @@ class Generator {
 
   _process() {
     return this._processDataFiles()
-      .then(this._processLayoutFiles)
-      .then(this._processRegularFiles)
-      .then(this._processCollectionFiles)
+      .then(this._processLayoutFiles.bind(this))
+      .then(this._processRegularFiles.bind(this))
+      .then(this._processCollectionFiles.bind(this))
       .then( () => {this.app.log('Done generating content')} );
   }
 
@@ -121,7 +121,6 @@ class Generator {
   }
 
   _processLayoutFiles () {
-    console.log("data", this.opts.data);
     this._layouts = {}
     var src = fs.realpathSync(this.opts.source);
     return this._getFiles(src, "_layouts/*").then((files) => {
