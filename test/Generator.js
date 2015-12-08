@@ -6,7 +6,7 @@ var TestApp = require('./support/TestApp');
 
 describe("Generator", () => {
   var generator;
-  var app;
+  var app = new TestApp();
 
   beforeEach(() => {
     app = new TestApp();
@@ -27,10 +27,10 @@ describe("Generator", () => {
     });
 
     it("should register for app lifecycle", () => {
-      app.on.called.should.be.true;
-      app.on.calledWith('load').should.be.true;
-      app.on.calledWith('startup').should.be.true;
-      app.on.calledWith('launch').should.be.true;
+      app.once.called.should.be.true;
+      app.once.calledWith('load').should.be.true;
+      app.once.calledWith('startup').should.be.true;
+      app.once.calledWith('launch').should.be.true;
     });
 
     it("should have opts after load", () => {

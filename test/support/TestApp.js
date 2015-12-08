@@ -11,6 +11,7 @@ class TestApp extends Dispatcher {
     this.config = {};
 
     this.on = sinon.spy(this.on);
+    this.once = sinon.spy(this.once);
 
     this.await = sinon.spy();
     
