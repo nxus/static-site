@@ -1,8 +1,8 @@
 'use strict';
 
-var Generator = require('../src/Generator');
+import Generator from '../src/Generator';
 
-var TestApp = require('./support/TestApp');
+import TestApp from '@nxus/core/lib/test/support/TestApp';
 
 describe("Generator", () => {
   var generator;
