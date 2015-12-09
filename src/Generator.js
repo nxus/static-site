@@ -51,14 +51,15 @@ class Generator {
 
     this.opts = _.extend(_defaultOpts, app.config.staticSite);
 
+    fse.ensureDirSync(this.opts.output);
+    app.get('router').send('static').with("/", fs.realpathSync(this.opts.output));
+
     app.once('startup', () => {
       app.log('Static Site Generator Startup')
-      app.log('Generating Static Files')
+      app.log('Generating Static Files,')
 
-      fse.ensureDirSync(this.opts.output);
       return this._process();
     })
-    app.get('router').send('static').with("/", fs.realpathSync(this.opts.output));
   }
 
   _process() {
