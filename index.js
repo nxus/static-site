@@ -9,5 +9,5 @@
 var Generator = require('./lib/Generator')
 
 module.exports = function(app, loaded) {
-  new Generator(app, loaded)
+  new Generator(app);
 }
