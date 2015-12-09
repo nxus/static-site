@@ -58,10 +58,7 @@ class Generator {
       fse.ensureDirSync(this.opts.output);
       return this._process();
     })
-
-    app.once('launch', () => {
-      app.get('router').send('setStatic').with("/", this.opts.output);
-    })
+    app.get('router').send('static').with("/", fs.realpathSync(this.opts.output));
   }
 
   _process() {
