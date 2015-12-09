@@ -55,10 +55,8 @@ class Generator {
       app.log('Static Site Generator Startup')
       app.log('Generating Static Files')
 
-      return fse.removeAsync(this.opts.output).then(() => {
-        fse.ensureDirSync(this.opts.output);
-        return this._process();
-      });
+      fse.ensureDirSync(this.opts.output);
+      return this._process();
     })
 
     app.once('launch', () => {
