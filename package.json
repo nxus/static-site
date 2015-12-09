@@ -1,6 +1,6 @@
 {
   "name": "@nxus/static-site",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "A static site generator for Nxus",
   "main": "index.js",
   "scripts": {
