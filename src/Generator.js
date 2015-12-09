@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-06 16:45:04
-* @Last Modified 2015-11-17
+* @Last Modified 2015-12-08
 */
 
 'use strict';
@@ -49,9 +49,7 @@ class Generator {
     this.app = app;
     app.log('Init Static Site Generator')
 
-    app.once('load', () => {
-      this.opts = _.extend(_defaultOpts, app.config.staticSite);
-    })
+    this.opts = _.extend(_defaultOpts, app.config.staticSite);
 
     app.once('startup', () => {
       app.log('Static Site Generator Startup')
@@ -69,6 +67,7 @@ class Generator {
   }
 
   _process() {
+    if(!fs.existsSync(this.opts.source)) throw new Error('Source destination does not exist!')
     return this._processDataFiles()
       .then(this._processLayoutFiles.bind(this))
       .then(this._processRegularFiles.bind(this))
@@ -84,7 +83,7 @@ class Generator {
         if(node_path.basename(file)[0] != ".") chain.push(this._processDataFile(node_path.join(src, file)));
       })
       return Promise.all(chain);
-    });
+    }).catch( (e) => this.app.log.debug(e));
   }
 
   _processDataFile(file) {
@@ -132,7 +131,7 @@ class Generator {
         this._layouts[name] = opts;
       })
       return this._postProcessLayoutFiles();
-    });
+    }).catch( (e) => this.app.log.debug(e));
   }
 
   _postProcessLayoutFiles () {
@@ -160,7 +159,7 @@ class Generator {
         if(node_path.basename(file)[0] != ".") chain.push(this._processRegularFile(src, dest, file));
       })
       return Promise.all(chain);
-    });
+    }).catch( (e) => this.app.log.debug(e));
   }
 
   _processRegularFile(path, dest, file) {
@@ -228,12 +227,15 @@ class Generator {
 
   _renderContent (type, content, opts) {
     if(!opts.page.layout) opts.page.layout = 'default';
-    var body = this._layouts[opts.page.layout].body;
-    var t = this._layouts[opts.page.layout].type;
-    return this._render(type, content, opts).then( (rContent) => {
-      opts.content = rContent
-      return this._renderLayout(t, body, opts);
-    });
+    if(this._layouts[opts.page.layout]) {
+      var body = this._layouts[opts.page.layout].body;
+      var t = this._layouts[opts.page.layout].type;
+      return this._render(type, content, opts).then( (rContent) => {
+        opts.content = rContent
+        return this._renderLayout(t, body, opts);
+      });
+    } else
+      return this._render("html", content, opts);
   }
 
   _renderLayout (type, content, opts) {
@@ -242,7 +244,8 @@ class Generator {
 
   _getFrontMatter(src) {
     var opts = fm(fs.readFileSync(src).toString())
-    opts.attributes.filename = fs.realpathSync(node_path.join(this.opts.source, "./_includes/"))+"/.";
+    if(fs.existsSync(node_path.join(this.opts.source, "./_includes/")))
+      opts.attributes.filename = fs.realpathSync(node_path.join(this.opts.source, "./_includes/"))+"/.";
     return opts;
   }
 
