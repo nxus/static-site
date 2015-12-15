@@ -52,7 +52,7 @@ class Generator {
     this.opts = _.extend(_defaultOpts, app.config.staticSite);
 
     fse.ensureDirSync(this.opts.output);
-    app.get('router').send('static').with("/", fs.realpathSync(this.opts.output));
+    app.get('router').provide('static', "/", fs.realpathSync(this.opts.output));
 
     app.once('startup', () => {
       app.log('Static Site Generator Startup')
@@ -218,7 +218,7 @@ class Generator {
 
   _render (type, content, opts) {
     if(opts.page.filename) opts.filename = opts.page.filename
-    return this.app.get('renderer').emit('render').with(type, content, opts).spread((result) => { return result; });
+    return this.app.get('renderer').request('render', type, content, opts).then((result) => { return result; });
   }
 
   _renderContent (type, content, opts) {

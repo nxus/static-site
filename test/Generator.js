@@ -1,8 +1,8 @@
 'use strict';
 
-var Generator = require('../src/Generator');
+import Generator from '../src/Generator';
 
-var TestApp = require('./support/TestApp');
+import TestApp from '@nxus/core/lib/test/support/TestApp';
 
 describe("Generator", () => {
   var generator;
@@ -28,13 +28,11 @@ describe("Generator", () => {
 
     it("should register for app lifecycle", () => {
       app.once.called.should.be.true;
-      app.once.calledWith('load').should.be.true;
       app.once.calledWith('startup').should.be.true;
-      app.once.calledWith('launch').should.be.true;
     });
 
     it("should have opts after load", () => {
-      return app.emit('load').with().then(() => {
+      return app.emit('load').then(() => {
         generator.should.have.property('opts');
         generator.opts.should.have.property('source', './src');
         generator.opts.should.have.property('output', './site');
@@ -42,11 +40,11 @@ describe("Generator", () => {
     });
     
     it("should send to router on launch", () => {
-      return app.emit('load').with().then(() => {
-        return app.emit('launch').with().then(() => {
+      return app.emit('load').then(() => {
+        return app.emit('launch').then(() => {
           app.get.called.should.be.true;
           app.get.calledWith('router');
-          app._send.with.calledWith("/", "./site");
+          app._get.provide.calledWith("static", "/", "./site");
         });
       });
     });
