@@ -1,1 +1,2 @@
---require test/support/node
+--require @nxus/core/lib/test/support/node
+
