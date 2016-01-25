@@ -1,17 +1,18 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-06 16:45:04
-* @Last Modified 2015-12-08
+* @Last Modified 2016-01-24
 */
 
 'use strict';
 
 import _ from 'underscore'
+import underscoreDeepExtend from 'underscore-deep-extend'
 import util from 'util'
 import fs from 'fs'
 import fse from 'fs-extra';
 import glob from 'glob';
-import fm from 'front-matter';
+import fm from 'yaml-front-matter';
 
 import node_path from 'path';
 import moment from 'moment-strftime';
@@ -24,10 +25,13 @@ import Promise from 'bluebird';
 Promise.promisifyAll(fse);
 var globAsync = Promise.promisify(glob);
 
+_.mixin({deepExtend: underscoreDeepExtend(_)});
+
 const _defaultOpts = {
   source: './src',
   output: './site',
   data: {},
+  tags: [],
   collections: {
     "_posts": {
       permalink: "/[blog]/%y/%m/%d/%title"
@@ -39,7 +43,8 @@ const _defaultOpts = {
 const _renderExtensions = {
   "md": "html",
   "ejs": "html",
-  "html": "html"
+  "html": "html",
+  "markdown": "html"
 }
 
 const REGEX_FILE = /[^\/]$/;
@@ -49,7 +54,7 @@ class Generator {
     this.app = app;
     app.log('Init Static Site Generator')
 
-    this.opts = _.extend(_defaultOpts, app.config.staticSite);
+    this.opts = _.deepExtend(_defaultOpts, app.config.staticSite);
 
     fse.ensureDirSync(this.opts.output);
     app.get('router').provide('static', "/", fs.realpathSync(this.opts.output));
@@ -65,10 +70,45 @@ class Generator {
   _process() {
     if(!fs.existsSync(this.opts.source)) throw new Error('Source destination does not exist!')
     return this._processDataFiles()
+      .then(this._preprocessCollectionFiles.bind(this))
       .then(this._processLayoutFiles.bind(this))
       .then(this._processRegularFiles.bind(this))
       .then(this._processCollectionFiles.bind(this))
       .then( () => {this.app.log('Done generating content')} );
+  }
+
+  _preprocessCollectionFiles () {
+    var src = fs.realpathSync(this.opts.source);
+    var dest = fs.realpathSync(this.opts.output);
+    var chain = [];
+    return this._getFiles(src, "_*/*").then( (files) => {
+      files.forEach((file) => {
+        var name = file.split(node_path.sep)[0]
+        if(_.contains(_.keys(this.opts.collections), name)) {
+          if(node_path.basename(file)[0] != ".") {
+            var newName = name;
+            if(newName[0] == "_") newName = newName.slice(1, newName.length)
+            if(!this.opts[newName]) this.opts[newName] = [];
+            var mdata = this._preprocessCollectionFile(src, dest, file)
+            if(mdata.tags) this.opts.tags = this.opts.tags.concat(mdata.tags)
+            if(this.opts.collections[name].permalink) mdata.permalink = this.opts.collections[name].permalink
+            mdata.url = this._generateOutputPath(file, mdata)
+            this.opts[newName].push(mdata);
+          }
+        }
+      })
+    });
+  }
+
+  _preprocessCollectionFile (path, dest, file) {
+    // set new destination name
+    var src = node_path.join(path, file);
+    var collection = file.split(node_path.sep)[0];
+    var ext = node_path.extname(file).replace(".", "");
+    var parsedPage = this._getFrontMatter(src);
+    parsedPage.attributes.excerpt = parsedPage.body.replace(/(<([^>]+)>)/ig, "").substr(0, 200)+"..."
+    return parsedPage.attributes
+    // write file to new destination
   }
 
   _processDataFiles () {
@@ -126,25 +166,25 @@ class Generator {
         opts.type = node_path.extname(file).replace(".", "")
         this._layouts[name] = opts;
       })
-      return this._postProcessLayoutFiles();
+      //return this._postProcessLayoutFiles();
     }).catch( (e) => this.app.log.debug(e));
   }
 
-  _postProcessLayoutFiles () {
-    var chain = [];
-    _.each(this._layouts, (layout, name) => {
-      if(layout.attributes && layout.attributes.template) chain.push(this._postProcessLayoutFile(name, layout));
-    })
-    return Promise.all(chain);
-  }
+  // _postProcessLayoutFiles () {
+  //   var chain = [];
+  //   _.each(this._layouts, (layout, name) => {
+  //     if(layout.attributes && layout.attributes.template) chain.push(this._postProcessLayoutFile(name, layout));
+  //   })
+  //   return Promise.all(chain);
+  // }
 
-  _postProcessLayoutFile (name, layout) {
-    return this._renderLayout(layout.type, layout.body, layout.attributes).then( (content) => {
-      var layoutCopy = this._layouts[name];
-      layoutCopy.body = content;
-      this._layouts[name] = layoutCopy;
-    });
-  }
+  // _postProcessLayoutFile (name, layout) {
+  //   return this._render(layout.type, layout.body, layout.attributes).then( (content) => {
+  //     var layoutCopy = this._layouts[name];
+  //     layoutCopy.body = content;
+  //     this._layouts[name] = layoutCopy;
+  //   });
+  // }
 
   _processRegularFiles () {
     var src = fs.realpathSync(this.opts.source);
@@ -223,23 +263,28 @@ class Generator {
 
   _renderContent (type, content, opts) {
     if(!opts.page.layout) opts.page.layout = 'default';
-    if(this._layouts[opts.page.layout]) {
-      var body = this._layouts[opts.page.layout].body;
-      var t = this._layouts[opts.page.layout].type;
-      return this._render(type, content, opts).then( (rContent) => {
-        opts.content = rContent
-        return this._renderLayout(t, body, opts);
-      });
-    } else
-      return this._render("html", content, opts);
+    return this._renderWithLayout(type, content, opts)
   }
 
-  _renderLayout (type, content, opts) {
-    return this._render(type, content, opts);
+  _renderWithLayout (type, content, opts) {
+    return this._render(type, content, opts).then((c) => {
+      if(opts.page.layout && this._layouts[opts.page.layout]) {
+        var layout = this._layouts[opts.page.layout]
+        opts.content = c
+        opts.page = _.deepExtend(opts.page, layout.attributes)
+        if(!layout.attributes.layout) delete opts.page.layout
+        return this._renderWithLayout(layout.type, layout.body, opts)
+      } else {
+        return c;
+      }
+    })
   }
 
   _getFrontMatter(src) {
-    var opts = fm(fs.readFileSync(src).toString())
+    var content = fs.readFileSync(src).toString()
+    var opts = {attributes: null, body: null}
+    opts.attributes = content ? fm.loadFront(content, "content") : {}
+    opts.body = opts.attributes.content
     if(fs.existsSync(node_path.join(this.opts.source, "./_includes/")))
       opts.attributes.filename = fs.realpathSync(node_path.join(this.opts.source, "./_includes/"))+"/.";
     return opts;
@@ -247,8 +292,12 @@ class Generator {
 
   _generateOutputPath (to, opts) {
     var ext = node_path.extname(to);
-    if(opts.permalink) {
-      var permalink = opts.permalink.replace("%title", (opts.title ? "["+slug(opts.title)+"]" : ""))
+    if(opts.permalink || (opts.page && (opts.page.permalink || (opts.page.collection && opts.page.collection.permalink)))) {
+      var permalink = opts.permalink;
+      var title = opts.title || opts.page.title || 'index'
+      if(opts.page && opts.page.collection && opts.page.collection.permalink) permalink = opts.page.collection.permalink
+      if(opts.page && opts.page.permalink) permalink = opts.page.permalink
+      permalink = permalink.replace("%title", (title ? "["+slug(title)+"]" : ""))
       to = moment(opts.published).strftime(permalink);
     }
     var newExt = "html"
@@ -257,6 +306,7 @@ class Generator {
       to = to.replace(ext, "");
       to = to+"."+newExt;
     }
+    console.log('outputpath', to)
     return to
   }
 
