@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-06 16:45:04
-* @Last Modified 2016-01-24
+* @Last Modified 2016-01-25
 */
 
 'use strict';
@@ -18,10 +18,8 @@ import node_path from 'path';
 import moment from 'moment-strftime';
 import slug from 'limax';
 
-import yaml from 'js-yaml';
-import parse from 'fast-csv';
-
 import Promise from 'bluebird';
+
 Promise.promisifyAll(fse);
 var globAsync = Promise.promisify(glob);
 
@@ -52,19 +50,33 @@ const REGEX_FILE = /[^\/]$/;
 class Generator {
   constructor (app) {
     this.app = app;
+    this.router = app.get('router');
+    this.staticSite = app.get('static-site')
+    this.generators = [];
+    this.dataParsers = {};
     app.log('Init Static Site Generator')
 
     this.opts = _.deepExtend(_defaultOpts, app.config.staticSite);
 
     fse.ensureDirSync(this.opts.output);
-    app.get('router').provide('static', "/", fs.realpathSync(this.opts.output));
+    this.router.provide('static', "/", fs.realpathSync(this.opts.output));
+
+    this.staticSite.gather('generator', this._registerGenerator.bind(this))
+    this.staticSite.gather('data-parser', this._registerDataParser.bind(this))
 
     app.once('startup', () => {
       app.log('Static Site Generator Startup')
       app.log('Generating Static Files,')
-
       return this._process();
     })
+  }
+
+  _registerGenerator(handler) {
+    this.generators.push(handler);
+  }
+
+  _registerDataParser(type, handler) {
+    this.dataParsers[type] = handler;
   }
 
   _process() {
@@ -126,33 +138,14 @@ class Generator {
     //read file
     var data = {};
     var content = fs.readFileSync(file);
-    var ext = node_path.extname(file);
-    return Promise.try(() => {
-      if(ext == ".csv") {
-        data = [];
-        return new Promise((resolve, reject) => {
-          var p = parse.fromString(content, {headers: true});
-          p.on("data", (d) => {
-            data.push(d)
-          });
-          p.on("end", () => {
-            this.opts.data[node_path.basename(file, ext)] = data;
-            resolve();
-          });
-          p.on("error", (e) => {
-            reject(e);
-          })
-        });
-      } else if(ext == ".yaml" || ext == ".yml") {
-        data = yaml.safeLoad(content.toString());
-        this.opts.data[node_path.basename(file, ext)] = data;
-      } else if(ext == ".json") {
-        data = JSON.parse(content.toString());
-        this.opts.data[node_path.basename(file, ext)] = data;
-      }
-    }).catch((e) => {
-      this.app.log.error(e)
-    });
+    var ext = node_path.extname(file).replace(".", "");
+    console.log('this.dataParsers', this.dataParsers)
+    if(this.dataParsers[ext]) {
+      return this.dataParsers[ext](content).then((data) => {
+        this.opts.data[node_path.basename(file, "."+ext)] = data;
+      }) 
+    }
+    else return Promise.resolve()
   }
 
   _processLayoutFiles () {
