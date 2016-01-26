@@ -112,53 +112,5 @@ export default class StaticSite {
     });
   }
 
-
-  
-
-
-
-  // _processCollectionFiles () {
-  //   var src = fs.realpathSync(this.opts.source);
-  //   var dest = fs.realpathSync(this.opts.output);
-  //   var chain = [];
-  //   this._getFiles(src, "_*/*").then( (files) => {
-  //     files.forEach((file) => {
-  //       var name = file.split(node_path.sep)[0]
-  //       if(_.contains(_.keys(this.opts.collections), name))
-  //         if(node_path.basename(file)[0] != ".") chain.push(this._processCollectionFile(src, dest, file));
-  //     })
-  //     return Promise.all(chain);
-  //   });
-  // }
-
-  // _processCollectionFile (path, dest, file) {
-  //   // set new destination name
-  //   var src = node_path.join(path, file);
-  //   var collection = file.split(node_path.sep)[0];
-  //   var ext = node_path.extname(file).replace(".", "");
-  //   var parsedPage = this._getFrontMatter(src);
-  //   var collectionOpts = this.opts.collections[collection]
-  //   collectionOpts.name = collection
-  //   parsedPage.attributes.collection = collectionOpts
-  //   var pageOpts = {site: this.opts, page: parsedPage.attributes};
-  //   if(file[0] == "_")
-  //     file = file.slice(1, file.length);
-  //   dest = node_path.join(dest, this._generateOutputPath(file, pageOpts));
-  //   console.log('copying collection '+src+" to "+dest);
-
-  //   // run file through template
-  //   var body = parsedPage.body || "";
-
-  //   return this._renderContent(ext, body, pageOpts).then((content) => {
-  //     return fse.outputFileAsync(dest, content);
-  //   })
-  //   // write file to new destination
-  // }
-
-
-
-
-
-
 }
 

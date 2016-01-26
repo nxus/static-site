@@ -38,6 +38,7 @@ export default class PageGenerator extends Task {
 
   _processFile(dest, page, opts) {
     var oldDest = dest
+    if(dest && dest[0] == '_') return Promise.resolve();
     dest = node_path.join(fs.realpathSync(opts.config.output), dest);
     
     var newExt = "html"
@@ -72,6 +73,7 @@ export default class PageGenerator extends Task {
     var ext = node_path.extname(page.source).replace(".", "");
     return this._render(ext, page.body, page).then((c) => {
       if(page.layout && this.layouts[page.layout]) {
+        page = _.clone(page);
         var layout = this.layouts[page.layout]
         page.content = c
         page = _.deepExtend(page, layout)

@@ -31,11 +31,9 @@ export default class LayoutProcessor extends Task {
         var newName = name;
         if(newName[0] == "_") newName = newName.slice(1, newName.length)
         if(!opts.config[newName]) opts.config[newName] = [];
-        let mdata = opts.files[dest]
-        if(opts.config.collections[name].permalink) mdata.permalink = opts.config.collections[name].permalink
-        opts.config[newName].push(mdata)
-        mdata.layout = false;
-        opts[dest] = mdata
+        if(opts.config.collections[name].permalink) page.permalink = opts.config.collections[name].permalink
+        opts.config[newName].push(page)
+        opts[dest] = page
       }
     }
 

@@ -4,13 +4,6 @@
 * @Last Modified 2016-01-26
 */
 
-'use strict';
-
-/* 
-* @Author: Mike Reich
-* @Date:   2016-01-26 08:26:31
-* @Last Modified 2016-01-26
-*/
 
 'use strict';
 

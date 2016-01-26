@@ -25,7 +25,7 @@ export default class OutputPath extends Task {
     console.log('processing output path', dest)
     return this._generateOutputPath(dest, page, opts).then((outputPath) => {
       delete opts.files[dest];
-      page.url = outputPath
+      page.url = outputPath+".html"
       opts.files[outputPath] = page;
     });
   }

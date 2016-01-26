@@ -26,7 +26,8 @@ export default class FrontMatter extends Task {
     source = node_path.join(fs.realpathSync(opts.config.source), source);
     return this._getFrontMatter(source, opts).then((parsedPage) => {
       parsedPage.source = source;
-      if(parsedPage.body) parsedPage.excerpt = parsedPage.body.replace(/(<([^>]+)>)/ig, "").substr(0, 200)+"..."
+      parsedPage.raw = parsedPage.body;
+      if(parsedPage.raw) parsedPage.excerpt = parsedPage.raw.replace(/(<([^>]+)>)/ig, "").substr(0, 200)+"..."
       if(parsedPage.tags) opts.config.tags = opts.config.tags.concat(parsedPage.tags)
       opts.files[dest] = parsedPage;
     });
