@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-26 07:43:48
-* @Last Modified 2016-01-26
+* @Last Modified 2016-02-12
 */
 
 'use strict';
@@ -51,7 +51,7 @@ export default class PageGenerator extends Task {
     }
 
     if(_.contains(_.keys(_renderExtensions), ext)) {
-      console.log('processing output page', dest)
+      this.app.log.debug('processing output page', dest)
       delete opts.files[oldDest];
       page = _.extend(page, {page, site: opts.config})
       return this._renderContent(page).then((content) => {

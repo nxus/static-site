@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-25 20:33:11
-* @Last Modified 2016-01-26
+* @Last Modified 2016-02-12
 */
 
 'use strict';
@@ -21,7 +21,7 @@ export default class FrontMatter extends Task {
   }
 
   _processFile(dest, source, opts) {
-    console.log('processing front matter', source)
+    this.app.log.debug('processing front matter', source)
     opts.config.tags = []
     source = node_path.join(fs.realpathSync(opts.config.source), source);
     return this._getFrontMatter(source, opts).then((parsedPage) => {

@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-06 16:45:04
-* @Last Modified 2016-01-26
+* @Last Modified 2016-02-12
 */
 
 'use strict';
@@ -42,75 +42,49 @@ export default class StaticSite {
   constructor (app) {
     this.app = app;
     this.router = app.get('router');
-    this.staticSite = app.get('static-site')
+    app.get('static-site').use(this)
     this.generators = [];
     this.processors = [];
     this.collectors = [];
     
-    app.log('Init Static Site Generator')
+    app.log.debug('Init Static Site Generator')
 
     this.opts = {config: _.deepExtend(_defaultOpts, app.config.staticSite)};
 
     fse.ensureDirSync(this.opts.config.output);
 
     this.opts.config.basePath = this.opts.config.basePath || '/'
-    this.router.provide('static', this.opts.config.basePath, fs.realpathSync(this.opts.config.output));
 
-    this.staticSite.gather('collector', this._registerCollector.bind(this))
-    this.staticSite.gather('processor', this._registerProcessor.bind(this))
-    this.staticSite.gather('generator', this._registerGenerator.bind(this))
+    this.router.static(this.opts.config.basePath, fs.realpathSync(this.opts.config.output));
 
-    app.once('startup', () => {
-      app.log('Static Site Generator Startup')
-      app.log('Generating Static Files,')
+    this.gather('collector')
+    .gather('processor')
+    .gather('generator')
+
+    ///app.get('pipeliner').pipeline('static-site')
+
+    app.once('launch', () => {
+      app.log.debug('Static Site Generator Startup')
+      app.log.debug('Generating Static Files')
       return this._process();
     })
-
-    this.staticSite.on('collect', this._processCollectors.bind(this))
-    this.staticSite.on('process', this._processProcessors.bind(this))
-    this.staticSite.on('generate', this._processGenerators.bind(this))
   }
 
-  _registerGenerator(handler) {
-    this.generators.push(handler);
+  generator(handler) {
+    return this.app.get('pipeliner').task('static-site', 'generate', handler)
   }
 
-  _registerCollector(handler) {
-    this.collectors.push(handler)
+  collector(handler) {
+    return this.app.get('pipeliner').task('static-site', 'collect', handler)
   }
 
-  _registerProcessor(handler) {
-    this.processors.push(handler)
+  processor(handler) {
+    return this.app.get('pipeliner').task('static-site', 'process', handler)
   }
 
   _process() {
     if(!fs.existsSync(this.opts.config.source)) throw new Error('Source destination does not exist!')
-    return this.staticSite.emit('collect')
-            .then(() => {return this.staticSite.emit('process')})
-            .then(() => {return this.staticSite.emit('generate')})
-            .then(() => this.app.log('Done generating content'));      
+    return this.app.get('pipeliner').run('static-site', this.opts)  
   }
-
-  _processCollectors() {
-    this.app.log('processing collectors')
-    return Promise.mapSeries(this.collectors, (collector) => {
-      return collector(this.opts);
-    });
-  }
-
-  _processGenerators() {
-    this.app.log('processing generators')
-    return Promise.mapSeries(this.generators, (generator) => {
-      return generator(this.opts);
-    });
-  }
-
-  _processProcessors() {
-    this.app.log('processing processors')
-    return Promise.mapSeries(this.processors, (processor) => {
-      return processor(this.opts);
-    });
-  }
-
 }
 

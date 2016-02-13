@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-25 19:48:45
-* @Last Modified 2016-01-26
+* @Last Modified 2016-02-12
 */
 
 'use strict';
@@ -12,7 +12,7 @@ import fs from 'fs'
 import node_path from 'path';
 import glob from 'glob';
 
-import Component from '../base/component'
+import Component from '../base/task'
 
 var globAsync = Promise.promisify(glob);
 

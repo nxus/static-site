@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-25 19:52:41
-* @Last Modified 2016-01-26
+* @Last Modified 2016-02-12
 */
 
 'use strict';
@@ -53,7 +53,7 @@ export default class DataProcessor extends Task {
     //read file
     var data = {};
     var ext = node_path.extname(file.source).replace(".", "");
-    console.log('this.dataParsers', this.dataParsers)
+    this.app.log.debug('this.dataParsers', this.dataParsers)
     if(this.dataParsers[ext]) {
       return this.dataParsers[ext](file.body)
     }

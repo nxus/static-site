@@ -1,13 +1,13 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-25 19:10:09
-* @Last Modified 2016-01-25
+* @Last Modified 2016-02-12
 */
 
 'use strict';
 
 import Promise from 'bluebird';
-import yaml from 'js-yaml';
+import yaml from 'yaml-front-matter';
 
 let process =  (content) => {
   return new Promise.try(() => {

@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-25 19:46:44
-* @Last Modified 2016-01-26
+* @Last Modified 2016-02-12
 */
 
 'use strict';
@@ -22,7 +22,7 @@ export default class FileGenerator extends Task {
   }
 
   _processFile(dest, source, opts) {
-    console.log('processing output file', dest)
+    this.app.log.debug('processing output file', dest)
     dest = node_path.join(fs.realpathSync(opts.config.output), dest);
     return fse.copySync(source.source, dest);
   }
