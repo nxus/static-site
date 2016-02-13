@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-25 19:48:45
-* @Last Modified 2016-02-12
+* @Last Modified 2016-02-13
 */
 
 'use strict';
@@ -30,7 +30,7 @@ export default class FileCollector extends Component {
     opts.files = {};
     return this._getFiles(src, "**/*").each((file) => {
       if(node_path.basename(file)[0] != ".") return this._processFile(file, opts);
-    }).then(() => console.log('opts', opts)).catch( (e) => this.app.log.debug(e));
+    }).catch( (e) => this.app.log.debug(e));
   }
 
   _processFile(file, opts) {
