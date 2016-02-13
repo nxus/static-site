@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-25 20:33:11
-* @Last Modified 2016-02-12
+* @Last Modified 2016-02-13
 */
 
 'use strict';
@@ -27,7 +27,6 @@ export default class FrontMatter extends Task {
     return this._getFrontMatter(source, opts).then((parsedPage) => {
       parsedPage.source = source;
       parsedPage.raw = parsedPage.body;
-      if(parsedPage.raw) parsedPage.excerpt = parsedPage.raw.replace(/(<([^>]+)>)/ig, "").substr(0, 200)+"..."
       if(parsedPage.tags) opts.config.tags = opts.config.tags.concat(parsedPage.tags)
       opts.files[dest] = parsedPage;
     });

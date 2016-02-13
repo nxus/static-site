@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-26 07:43:48
-* @Last Modified 2016-02-12
+* @Last Modified 2016-02-13
 */
 
 'use strict';
@@ -66,6 +66,11 @@ export default class PageGenerator extends Task {
 
   _renderContent (page) {
     if(typeof page.layout == 'undefined') page.layout = 'default';
+    page = _.clone(page);
+    var layout = this.layouts[page.layout]
+    page = _.deepExtend(page, layout)
+    page.body = layout.body
+    if(!layout.layout) delete page.layout
     return this._renderWithLayout(page)
   }
 

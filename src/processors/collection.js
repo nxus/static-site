@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-25 19:48:51
-* @Last Modified 2016-01-26
+* @Last Modified 2016-02-13
 */
 
 'use strict';
@@ -19,12 +19,8 @@ export default class LayoutProcessor extends Task {
     return 'processor'
   }
 
-  _processFiles(opts) {
-    
-    return super._processFiles(opts)
-  }
-
   _processFile(dest, page, opts) {
+    page = opts.files[dest]
     var name = dest.split(node_path.sep)[0]
     if(_.contains(_.keys(opts.config.collections), name)) {
       if(node_path.basename(dest)[0] != ".") {
@@ -33,7 +29,6 @@ export default class LayoutProcessor extends Task {
         if(!opts.config[newName]) opts.config[newName] = [];
         if(opts.config.collections[name].permalink) page.permalink = opts.config.collections[name].permalink
         opts.config[newName].push(page)
-        opts[dest] = page
       }
     }
 

@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-26 07:46:50
-* @Last Modified 2016-01-26
+* @Last Modified 2016-02-13
 */
 
 'use strict';
@@ -26,7 +26,7 @@ export default class Component {
     let files = _.keys(opts.files)
     return Promise.each(files, (dest) => {
       let source = opts.files[dest]
-      return this._processFile(dest, source, opts)
+      return Promise.resolve(this._processFile(dest, source, opts))
     })
   }
 

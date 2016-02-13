@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-06 16:45:04
-* @Last Modified 2016-02-12
+* @Last Modified 2016-02-13
 */
 
 'use strict';
@@ -43,16 +43,12 @@ export default class StaticSite {
     this.app = app;
     this.router = app.get('router');
     app.get('static-site').use(this)
-    this.generators = [];
-    this.processors = [];
-    this.collectors = [];
     
     app.log.debug('Init Static Site Generator')
 
-    this.opts = {config: _.deepExtend(_defaultOpts, app.config.staticSite)};
+    this._setOpts()
 
     fse.ensureDirSync(this.opts.config.output);
-
     this.opts.config.basePath = this.opts.config.basePath || '/'
 
     this.router.static(this.opts.config.basePath, fs.realpathSync(this.opts.config.output));
@@ -64,10 +60,15 @@ export default class StaticSite {
     ///app.get('pipeliner').pipeline('static-site')
 
     app.once('launch', () => {
+      this._setOpts();
       app.log.debug('Static Site Generator Startup')
       app.log.debug('Generating Static Files')
-      return this._process();
+      return this._process(); 
     })
+  }
+
+  _setOpts() {
+    this.opts = {config: _.deepExtend(_defaultOpts, this.app.config.staticSite)};    
   }
 
   generator(handler) {
