@@ -31,7 +31,6 @@ export default class LayoutProcessor extends Task {
         opts.config[newName].push(page)
       }
     }
-
     return Promise.resolve();
   }
 }

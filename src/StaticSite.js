@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-06 16:45:04
-* @Last Modified 2016-02-13
+* @Last Modified 2016-02-15
 */
 
 'use strict';
@@ -59,7 +59,7 @@ export default class StaticSite {
 
     ///app.get('pipeliner').pipeline('static-site')
 
-    app.once('launch', () => {
+    app.once('startup', () => {
       this._setOpts();
       app.log.debug('Static Site Generator Startup')
       app.log.debug('Generating Static Files')
