@@ -48,6 +48,10 @@ export default class StaticSite {
 
     this._setOpts()
 
+    this._generators = []
+    this._collectors = []
+    this._processors = []
+
     app.config.watch = (app.config.watch || []).concat([process.cwd()+"/"+this.opts.config.source])
     app.config.ignore = (app.config.ignore || []).concat([process.cwd()+"/"+this.opts.config.output])
 
@@ -66,7 +70,7 @@ export default class StaticSite {
       this._setOpts();
       app.log.debug('Static Site Generator Startup')
       app.log.debug('Generating Static Files')
-      return this._process(); 
+      return this._setupPipeline().then(this._process.bind(this))
     })
   }
 
@@ -74,19 +78,42 @@ export default class StaticSite {
     this.opts = {config: _.deepExtend(_defaultOpts, this.app.config.staticSite, {siteName: this.app.config.siteName, baseUrl: this.app.config.baseUrl})};    
   }
 
-  generator(handler) {
-    return this.app.get('pipeliner').task('static-site', 'generate', handler)
+  generator(handler, order) {
+    this._generators.push({order, handler})
   }
 
-  collector(handler) {
-    return this.app.get('pipeliner').task('static-site', 'collect', handler)
+  collector(handler, order) {
+    this._collectors.push({order, handler})
   }
 
-  processor(handler) {
-    return this.app.get('pipeliner').task('static-site', 'process', handler)
+  processor(handler, order) {
+    this._processors.push({order, handler})
+  }
+
+  _setupPipeline() {
+    console.log('registering pipeline')
+    var sort = (i) => {
+      console.log('i.order', i.order)
+      if(i.order > -1)
+        return i.order
+      else
+        return 10000000
+    }
+    return Promise.each(_.sortBy(this._generators, sort), (m) => {
+      return this.app.get('pipeliner').task('static-site', 'generate', m.handler)
+    }).then(() => {
+      return Promise.each(_.sortBy(this._processors, sort), (m) => {
+        return this.app.get('pipeliner').task('static-site', 'process', m.handler)
+      })
+    }).then(() => {
+      return Promise.each(_.sortBy(this._collectors, sort), (m) => {
+        return this.app.get('pipeliner').task('static-site', 'collect', m.handler)
+      })
+    })
   }
 
   _process() {
+    console.log('processing pipeline')
     if(!fs.existsSync(this.opts.config.source)) throw new Error('Source destination does not exist!')
     return this.app.get('pipeliner').run('static-site', this.opts)  
   }

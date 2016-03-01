@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-25 19:48:45
-* @Last Modified 2016-02-13
+* @Last Modified 2016-03-01
 */
 
 'use strict';
@@ -25,6 +25,7 @@ export default class FileCollector extends Component {
   }
 
   _processFiles (opts) {
+    this.app.log.debug('Hydrating files')
     let src = fs.realpathSync(opts.config.source);
     let dest = fs.realpathSync(opts.config.output);
     opts.files = {};

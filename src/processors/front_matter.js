@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-25 20:33:11
-* @Last Modified 2016-02-28
+* @Last Modified 2016-03-01
 */
 
 'use strict';
@@ -18,6 +18,10 @@ export default class FrontMatter extends Task {
 
   _type() {
     return 'processor'
+  }
+
+  _order() {
+    return 0
   }
 
   _processFile(dest, source, opts) {

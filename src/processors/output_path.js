@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-26 07:36:01
-* @Last Modified 2016-02-29
+* @Last Modified 2016-03-01
 */
 
 'use strict';
@@ -19,6 +19,10 @@ export default class OutputPath extends Task {
 
   _type() {
     return 'processor'
+  }
+
+  _order() {
+    return 5
   }
 
   _processFile(dest, page, opts) {

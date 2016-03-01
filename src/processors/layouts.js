@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-26 08:26:31
-* @Last Modified 2016-01-26
+* @Last Modified 2016-03-01
 */
 
 'use strict';
@@ -18,6 +18,10 @@ export default class LayoutProcessor extends Task {
 
   _type() {
     return 'processor'
+  }
+
+  _order() {
+    return 2
   }
 
   _processFiles(opts) {

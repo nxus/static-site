@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-26 08:34:41
-* @Last Modified 2016-01-26
+* @Last Modified 2016-03-01
 */
 
 
@@ -19,6 +19,10 @@ export default class LayoutProcessor extends Task {
 
   _type() {
     return 'processor'
+  }
+
+  _order() {
+    return 3
   }
 
   _processFiles(opts) {

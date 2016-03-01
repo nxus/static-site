@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-25 19:46:44
-* @Last Modified 2016-02-28
+* @Last Modified 2016-03-01
 */
 
 'use strict';
@@ -19,6 +19,10 @@ export default class FileGenerator extends Task {
   
   _type() {
     return 'generator'
+  }
+
+  _order() {
+    return -1
   }
 
   _processFile(dest, source, opts) {

@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-26 07:46:50
-* @Last Modified 2016-02-13
+* @Last Modified 2016-03-01
 */
 
 'use strict';
@@ -14,7 +14,11 @@ export default class Component {
   constructor(app) {
     this.app = app;
     this.staticSite = app.get('static-site')
-    this.staticSite.provide(this._type(), this._processFiles.bind(this));
+    this.staticSite.provide(this._type(), this._processFiles.bind(this), this._order());
+  }
+
+  _order() {
+    return -1 //insert at the end of the list
   }
 
   _type () {

@@ -1,7 +1,7 @@
 /*
 * @Author: Mike Reich
 * @Date:   2016-02-28 13:21:31
-* @Last Modified 2016-02-29
+* @Last Modified 2016-03-01
 */
 
 'use strict';
@@ -27,6 +27,10 @@ export default class CategoryPages extends Task {
   
   _type() {
     return 'processor'
+  }
+
+  _order() {
+    return 8
   }
 
   _processFiles(opts) {

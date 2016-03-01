@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-26 07:43:48
-* @Last Modified 2016-02-29
+* @Last Modified 2016-03-01
 */
 
 'use strict';
@@ -31,6 +31,10 @@ export default class PageGenerator extends Task {
     return 'generator'
   }
 
+  _order() {
+    return 0
+  }
+
   _processFiles(opts) {
     this.layouts = opts.layouts
     return super._processFiles(opts)
@@ -46,8 +50,10 @@ export default class PageGenerator extends Task {
 
     if(ext && _.contains(_.keys(_renderExtensions), ext)) {
       if(_renderExtensions[ext]) newExt = _renderExtensions[ext];
-      dest = dest.replace("."+ext, "");
-      dest = dest+"."+newExt;
+      if(dest.indexOf(ext) > -1) {
+        dest = dest.replace("."+ext, "");
+        dest = dest+"."+newExt;
+      }
     }
 
     if(_.contains(_.keys(_renderExtensions), ext)) {

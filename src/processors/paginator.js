@@ -1,7 +1,7 @@
 /*
 * @Author: Mike Reich
 * @Date:   2016-02-28 13:21:31
-* @Last Modified 2016-02-29
+* @Last Modified 2016-03-01
 */
 
 'use strict';
@@ -30,6 +30,10 @@ export default class Paginator extends Task {
     return 'processor'
   }
 
+  _order() {
+    return 5
+  }
+
   _processFiles(opts) {
     opts.config.paginator = _.extend(defaultOpts, opts.config, (this.opts || {}))
     this.opts = opts.config.paginator
@@ -40,6 +44,7 @@ export default class Paginator extends Task {
   }
 
   _paginateCollection(collection, opts) {
+    this.app.log('paginating collection', collection)
     if(!this.pages[collection]) this.pages[collection] = {}
     let pages = 1
     opts.config[collection].forEach((p, index) => {
