@@ -1,11 +1,11 @@
 'use strict';
 
-import Generator from '../src/Generator';
+import StaticSite from '../src/StaticSite';
 
 import TestApp from '@nxus/core/lib/test/support/TestApp';
 
-describe("Generator", () => {
-  var generator;
+describe("StaticSite", () => {
+  var staticSite;
   var app = new TestApp();
 
   beforeEach(() => {
@@ -13,17 +13,17 @@ describe("Generator", () => {
   });
   
   describe("Load", () => {
-    it("should not be null", () => Generator.should.not.be.null)
+    it("should not be null", () => StaticSite.should.not.be.null)
 
     it("should be instantiated", () => {
-      generator = new Generator(app);
-      generator.should.not.be.null;
+      staticSite = new StaticSite(app);
+      staticSite.should.not.be.null;
     });
   });
   
   describe("Init", () => {
     beforeEach(() => {
-      generator = new Generator(app);
+      staticSite = new StaticSite(app);
     });
 
     it("should register for app lifecycle", () => {
@@ -33,9 +33,10 @@ describe("Generator", () => {
 
     it("should have opts after load", () => {
       return app.emit('load').then(() => {
-        generator.should.have.property('opts');
-        generator.opts.should.have.property('source', './src');
-        generator.opts.should.have.property('output', './site');
+        staticSite.should.have.property('opts');
+        staticSite.opts.should.have.property('config')
+        staticSite.opts.config.should.have.property('source', './src');
+        staticSite.opts.config.should.have.property('output', './site');
       });
     });
     
