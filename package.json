@@ -1,6 +1,6 @@
 {
   "name": "nxus-static-site",
-  "version": "2.3.2",
+  "version": "2.4.0-0",
   "description": "A static site generator for Nxus",
   "main": "./lib",
   "scripts": {
@@ -36,14 +36,15 @@
     "yaml-front-matter": "^3.2.3"
   },
   "peerDependencies": {
-    "@nxus/core": "^2.3.0",
-    "@nxus/router": "^2.3.0",
-    "@nxus/renderer": "^2.3.0",
-    "@nxus/pipeliner": "^2.3.0"
+    "@nxus/core": "^2.4.0-0",
+    "@nxus/router": "^2.4.0-0",
+    "@nxus/renderer": "^2.4.0-0",
+    "@nxus/pipeliner": "^2.4.0-0",
+    "nxus-md-renderer": "^2.4.0-0"
   },
   "devDependencies": {
-    "@nxus/core": "^2.3.0",
-    "@nxus/pipeliner": "^2.3.0",
+    "@nxus/core": "^2.4.0-0",
+    "@nxus/pipeliner": "^2.4.0-0",
     "babel": "^5.6.23",
     "chai": "^3.4.1",
     "chai-as-promised": "^5.1.0",

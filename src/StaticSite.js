@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-06 16:45:04
-* @Last Modified 2016-02-15
+* @Last Modified 2016-02-29
 */
 
 'use strict';
@@ -48,6 +48,9 @@ export default class StaticSite {
 
     this._setOpts()
 
+    app.config.watch = (app.config.watch || []).concat([process.cwd()+"/"+this.opts.config.source])
+    app.config.ignore = (app.config.ignore || []).concat([process.cwd()+"/"+this.opts.config.output])
+
     fse.ensureDirSync(this.opts.config.output);
     this.opts.config.basePath = this.opts.config.basePath || '/'
 
@@ -68,7 +71,7 @@ export default class StaticSite {
   }
 
   _setOpts() {
-    this.opts = {config: _.deepExtend(_defaultOpts, this.app.config.staticSite)};    
+    this.opts = {config: _.deepExtend(_defaultOpts, this.app.config.staticSite, {siteName: this.app.config.siteName, baseUrl: this.app.config.baseUrl})};    
   }
 
   generator(handler) {

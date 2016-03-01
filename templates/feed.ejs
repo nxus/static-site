@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title><%= site.siteName %></title>
+    <description><%= site.description ? site.description : "" %></description>
+    <link><%= site.baseUrl %></link>
+    <atom:link href="<%= site.baseUrl %>/feed.xml" rel="self" type="application/rss+xml" />
+    <% site.posts.forEach(function(post) { %>
+      <item>
+        <title><%= post.title %></title>
+        <% if(post.excerpt) { %>
+          <description><%= post.excerpt %></description>
+        <% } else { %>
+          <description><%= post.content %></description>
+        <% } %>
+        <pubDate><%= post.published %></pubDate>
+        <link><%= site.baseUrl %><%= post.url %></link>
+        <guid isPermaLink="true"><%= site.baseUrl %><%= post.url %></guid>
+      </item>
+      <% }) %>
+  </channel>
+</rss>

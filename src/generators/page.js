@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-26 07:43:48
-* @Last Modified 2016-02-13
+* @Last Modified 2016-02-29
 */
 
 'use strict';
@@ -51,7 +51,7 @@ export default class PageGenerator extends Task {
     }
 
     if(_.contains(_.keys(_renderExtensions), ext)) {
-      this.app.log.debug('processing output page', dest)
+      this.app.log.debug('generating output page', dest)
       delete opts.files[oldDest];
       page = _.extend(page, {page, site: opts.config})
       return this._renderContent(page).then((content) => {
@@ -69,8 +69,11 @@ export default class PageGenerator extends Task {
     page = _.clone(page);
     var layout = this.layouts[page.layout]
     page = _.deepExtend(page, layout)
-    page.body = layout.body
-    if(!layout.layout) delete page.layout
+    if(layout) {
+      page.body = layout.body
+      if(!layout.layout) delete page.layout
+    } else
+      delete page.layout
     return this._renderWithLayout(page)
   }
 

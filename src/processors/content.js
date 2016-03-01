@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-02-13 13:45:06
-* @Last Modified 2016-02-13
+* @Last Modified 2016-02-28
 */
 
 'use strict';
@@ -25,7 +25,6 @@ export default class Content extends Task {
     let files = _.keys(opts.files)
     //Sort to process collection files first
     files = _(files).sortBy((f) => {return _.map(_(opts.config.collections).keys(), (k) => {if(f.indexOf(k) > -1) return f}).length})
-    console.log('files', files)
     return Promise.each(files, (dest) => {
       let source = opts.files[dest]
       return Promise.resolve(this._processFile(dest, source, opts))
