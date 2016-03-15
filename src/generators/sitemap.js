@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-25 19:46:57
-* @Last Modified 2016-02-29
+* @Last Modified 2016-03-01
 */
 
 'use strict';
@@ -16,13 +16,13 @@ Promise.promisifyAll(fse);
 
 import Task from '../base/task'
 
-export default class FeedGenerator extends Task {
+export default class SitemapGenerator extends Task {
   _type() {
     return 'generator'
   }
 
   _processFiles(opts) {
-    let files = _.compact(_.mapObject(opts.files, (value, key) => { console.log(key); if(key.indexOf('.html') > -1) return value}))
+    let files = _.compact(_.mapObject(opts.files, (value, key) => {if(key.indexOf('.html') > -1) return value}))
     return this.app.get('renderer').request('renderFile', __dirname+"/../../templates/sitemap.ejs", {files, site: opts.config})
     .then((result) => { 
       fse.outputFileAsync(node_path.join(fs.realpathSync(opts.config.output), "sitemap.xml"), result); 

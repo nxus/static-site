@@ -1,7 +1,7 @@
 /*
 * @Author: Mike Reich
 * @Date:   2016-02-28 12:58:44
-* @Last Modified 2016-03-01
+* @Last Modified 2016-03-02
 */
 
 'use strict';
@@ -28,6 +28,6 @@ export default class FrontMatter extends Task {
     this.app.log.debug('processing blog features', page.source)
     if(page.tags) opts.config.tags = _.unique((opts.config.tags || []).concat(page.tags))
     if(page.featured) opts.config.featured = _.unique((opts.config.featured || []).concat(page))
-    if(page.categories) opts.config.categories = _.unique((opts.config.categories || []).concat(page.categories))
+    if(page.categories) opts.config.categories = _.unique((opts.config.categories || []).concat(_.map(page.categories, (c) => {return c.toLowerCase()})))
   }
 }

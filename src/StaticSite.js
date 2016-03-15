@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-06 16:45:04
-* @Last Modified 2016-03-01
+* @Last Modified 2016-03-15
 */
 
 'use strict';
@@ -31,7 +31,7 @@ const _defaultOpts = {
   data: {},
   tags: [],
   collections: {
-    "_posts": {
+    "posts": {
       permalink: "/[blog]/%y/%m/%d/%title"
     }
   },
@@ -42,7 +42,7 @@ export default class StaticSite {
   constructor (app) {
     this.app = app;
     this.router = app.get('router');
-    app.get('static-site').use(this)
+    app.get('static-site').use(this).respond('addDefaultConfig')
     
     app.log.debug('Init Static Site Generator')
 
@@ -75,7 +75,16 @@ export default class StaticSite {
   }
 
   _setOpts() {
-    this.opts = {config: _.deepExtend(_defaultOpts, this.app.config.staticSite, {siteName: this.app.config.siteName, baseUrl: this.app.config.baseUrl})};    
+    this.app.writeDefaultConfig('staticSite', _defaultOpts)
+    this.opts = {config: _.deepExtend(this.app.config.staticSite, {siteName: this.app.config.siteName, baseUrl: this.app.config.baseUrl})};    
+    console.log('this.opts', this.opts)
+  }
+
+  addDefaultConfig(name, opts) {
+    console.log('this.opts', this.opts.config)
+    if(this.opts.config[name]) return
+    this.opts.config[name] = opts
+    this.app.writeDefaultConfig('staticSite', this.opts.config)
   }
 
   generator(handler, order) {
@@ -91,9 +100,7 @@ export default class StaticSite {
   }
 
   _setupPipeline() {
-    console.log('registering pipeline')
     var sort = (i) => {
-      console.log('i.order', i.order)
       if(i.order > -1)
         return i.order
       else
@@ -113,7 +120,6 @@ export default class StaticSite {
   }
 
   _process() {
-    console.log('processing pipeline')
     if(!fs.existsSync(this.opts.config.source)) throw new Error('Source destination does not exist!')
     return this.app.get('pipeliner').run('static-site', this.opts)  
   }

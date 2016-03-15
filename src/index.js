@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-25 19:26:52
-* @Last Modified 2016-03-01
+* @Last Modified 2016-03-15
 */
 
 'use strict';
@@ -15,17 +15,18 @@ var fs = Promise.promisifyAll(filesystem)
 
 export default (app) => {
   let dirs = ['/parsers', '/processors', '/collectors', '/generators']
+  
+  var plugin = new StaticSite(app)
+
   return Promise.each(dirs, (dir) => {
     return fs.readdirAsync(fs.realpathSync(__dirname+dir)).each((f) => {
       try {
         let m = require(__dirname+dir+"/"+f)
         if(m.default) m = m.default
-        new m(app)
+        new m(app, plugin)
       } catch (e) {
         app.log.warn('Could not load static-site module', e)
       }
     })
-  }).then(() => {
-    new StaticSite(app)
   })
 }

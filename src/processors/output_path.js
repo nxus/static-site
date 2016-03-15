@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-26 07:36:01
-* @Last Modified 2016-03-01
+* @Last Modified 2016-03-15
 */
 
 'use strict';
@@ -47,7 +47,7 @@ export default class OutputPath extends Task {
       var permalink = page.permalink;
       var title = page.title || 'index'
       permalink = permalink.replace("%title", (title ? "["+slug(title)+"]" : ""))
-      to = moment(opts.published).strftime(permalink)+".html";
+      to = moment(page.date).strftime(permalink)+".html";
     }
     this.app.log.debug('outputpath', to)
     return Promise.resolve(to)

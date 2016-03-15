@@ -1,7 +1,7 @@
 /*
 * @Author: Mike Reich
 * @Date:   2016-02-28 13:21:31
-* @Last Modified 2016-03-01
+* @Last Modified 2016-03-15
 */
 
 'use strict';
@@ -20,12 +20,17 @@ const defaultOpts = {
   paginate: [
     'posts'
   ],
-  layout: "blog_index",
+  layout: "blog",
   path: "/blog/%page%/index.html"
 }
 
 export default class Paginator extends Task {
   
+  constructor(app, plugin) {
+    super(app, plugin)
+    plugin.addDefaultConfig('paginator', defaultOpts)
+  }
+
   _type() {
     return 'processor'
   }
@@ -35,7 +40,6 @@ export default class Paginator extends Task {
   }
 
   _processFiles(opts) {
-    opts.config.paginator = _.extend(defaultOpts, opts.config, (this.opts || {}))
     this.opts = opts.config.paginator
     this.pages = {}
     return Promise.each(_.values(this.opts.paginate), (collection) => {
@@ -44,6 +48,7 @@ export default class Paginator extends Task {
   }
 
   _paginateCollection(collection, opts) {
+    if(!opts.config[collection]) return
     this.app.log('paginating collection', collection)
     if(!this.pages[collection]) this.pages[collection] = {}
     let pages = 1
@@ -62,8 +67,8 @@ export default class Paginator extends Task {
     }
     
     var getPages = (totalPages, currentPage) => {
-      let min = currentPage < 3 ? 1 : currentPage-2;
-      let max = currentPage > totalPages-3 ? totalPages : currentPage+2
+      let min = currentPage < 5 ? 1 : currentPage-2;
+      let max = currentPage > totalPages-5 ? totalPages : currentPage+4
       let pages = []
       for(let i = min; i <= max; i++) {
         let p = {

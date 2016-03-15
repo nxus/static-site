@@ -29,4 +29,12 @@ Generate
 
 ### Collections
 
+### Pagination
+
+### Category Pages
+
+### Sitemaps
+
+### RSS Feeds
+
 ### Configuration Options

@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-26 07:43:48
-* @Last Modified 2016-03-01
+* @Last Modified 2016-03-15
 */
 
 'use strict';
@@ -67,6 +67,7 @@ export default class PageGenerator extends Task {
   }
 
   _render (type, content, opts) {
+    if(!content || content.length == 0) content = ""
     return this.app.get('renderer').request('render', type, content, opts).then((result) => { return result; });
   }
 

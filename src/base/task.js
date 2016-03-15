@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-26 07:46:50
-* @Last Modified 2016-03-01
+* @Last Modified 2016-03-15
 */
 
 'use strict';
@@ -11,7 +11,8 @@ import Promise from 'bluebird';
 
 export default class Component {
 
-  constructor(app) {
+  constructor(app, plugin) {
+    this.plugin = plugin;
     this.app = app;
     this.staticSite = app.get('static-site')
     this.staticSite.provide(this._type(), this._processFiles.bind(this), this._order());
