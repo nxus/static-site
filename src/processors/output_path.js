@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-26 07:36:01
-* @Last Modified 2016-03-15
+* @Last Modified 2016-04-07
 */
 
 'use strict';
@@ -44,7 +44,11 @@ export default class OutputPath extends Task {
     var ext = node_path.extname(to);
     if(!page) return Promise.resovle(to)
     if(page.permalink) {
-      var permalink = page.permalink;
+      to = page.permalink
+      if(to[to.length-1] == '/')
+        to += 'index.html'
+    } else if(page.path) {
+      var permalink = page.path;
       var title = page.title || 'index'
       permalink = permalink.replace("%title", (title ? "["+slug(title)+"]" : ""))
       to = moment(page.date).strftime(permalink)+".html";

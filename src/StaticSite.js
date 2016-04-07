@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-06 16:45:04
-* @Last Modified 2016-03-15
+* @Last Modified 2016-04-07
 */
 
 'use strict';
@@ -32,7 +32,7 @@ const _defaultOpts = {
   tags: [],
   collections: {
     "posts": {
-      permalink: "/[blog]/%y/%m/%d/%title"
+      permalinkTemplate: "/[blog]/%y/%m/%d/%title"
     }
   },
   ignore: []

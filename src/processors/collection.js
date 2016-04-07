@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2016-01-25 19:48:51
-* @Last Modified 2016-03-15
+* @Last Modified 2016-04-07
 */
 
 'use strict';
@@ -40,7 +40,7 @@ export default class LayoutProcessor extends Task {
         var newName = name;
         if(newName[0] == "_") newName = newName.slice(1, newName.length)
         if(!opts.config[newName]) opts.config[newName] = [];
-        if(opts.config.collections[newName].permalink) page.permalink = opts.config.collections[newName].permalink
+        if(opts.config.collections[newName].path) page.path = opts.config.collections[newName].path
         opts.config[newName].push(page)
       }
     }
