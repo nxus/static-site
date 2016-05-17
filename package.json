@@ -30,6 +30,7 @@
     "fs-extra": "^0.26.2",
     "glob": "^5.0.15",
     "limax": "^1.1.4",
+    "moment": "^2.13.0",
     "moment-strftime": "^0.1.5",
     "underscore": "^1.8.3",
     "underscore-deep-extend": "0.0.5",
