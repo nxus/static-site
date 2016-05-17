@@ -14,7 +14,7 @@
         <% } else { %>
           <description><%= post.content %></description>
         <% } %>
-        <pubDate><%= post.published %></pubDate>
+        <pubDate><%= moment(post.published).format("ddd, DD MMM YYYY HH:mm:ss ZZ") %></pubDate>
         <link><%= site.baseUrl %><%= post.url %></link>
         <guid isPermaLink="true"><%= site.baseUrl %><%= post.url %></guid>
       </item>
