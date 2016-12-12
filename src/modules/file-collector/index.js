@@ -12,26 +12,26 @@ import fs from 'fs'
 import node_path from 'path';
 import glob from 'glob';
 
-import Component from '../base/task'
+import Task from '../../Task'
 
 var globAsync = Promise.promisify(glob);
 
 const REGEX_FILE = /[^\/]$/;
 
-export default class FileCollector extends Component {
+export default class FileCollector extends Task {
 
   _type() {
     return 'collector'
   }
 
   _processFiles (opts) {
-    this.app.log.debug('Hydrating files')
-    let src = fs.realpathSync(opts.config.source);
-    let dest = fs.realpathSync(opts.config.output);
+    this.log.debug('Hydrating files')
+    let src = fs.realpathSync(opts.source);
+    let dest = fs.realpathSync(opts.output);
     opts.files = {};
     return this._getFiles(src, "**/*").each((file) => {
       if(node_path.basename(file)[0] != ".") return this._processFile(file, opts);
-    }).catch( (e) => this.app.log.debug(e));
+    }).catch( (e) => this.log.debug(e));
   }
 
   _processFile(file, opts) {

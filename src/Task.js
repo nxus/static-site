@@ -9,13 +9,14 @@
 import _ from 'underscore';
 import Promise from 'bluebird';
 
-export default class Component {
+import {application as app, NxusModule} from 'nxus-core'
+import {staticSite} from './'
 
-  constructor(app, plugin) {
-    this.plugin = plugin;
-    this.app = app;
-    this.staticSite = app.get('static-site')
-    this.staticSite.provide(this._type(), this._processFiles.bind(this), this._order());
+export default class Component extends NxusModule {
+
+  constructor(opts) {
+    super(opts)
+    staticSite.provide(this._type(), this._processFiles.bind(this), this._order());
   }
 
   _order() {
@@ -29,6 +30,7 @@ export default class Component {
   _processFiles(opts) {
     if(!opts) return
     let files = _.keys(opts.files)
+  console.log(files.length)
     return Promise.each(files, (dest) => {
       let source = opts.files[dest]
       return Promise.resolve(this._processFile(dest, source, opts))

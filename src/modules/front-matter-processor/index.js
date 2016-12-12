@@ -12,7 +12,7 @@ import node_path from 'path';
 import fs from 'fs';
 import Promise from 'bluebird';
 
-import Task from '../base/task'
+import Task from '../../task'
 
 export default class FrontMatter extends Task {
 
@@ -25,8 +25,8 @@ export default class FrontMatter extends Task {
   }
 
   _processFile(dest, source, opts) {
-    this.app.log.debug('processing front matter', source)
-    source = node_path.join(fs.realpathSync(opts.config.source), source);
+    this.log.debug('processing front matter', source)
+    source = node_path.join(fs.realpathSync(opts.source), source);
     return this._getFrontMatter(source, opts).then((parsedPage) => {
       parsedPage.source = source;
       parsedPage.raw = parsedPage.body;
@@ -37,8 +37,8 @@ export default class FrontMatter extends Task {
   _getFrontMatter(src, opts) {
     var content = fs.readFileSync(src).toString()
     var pageOpts = content ? fm.loadFront(content, "body") : {}
-    if(fs.existsSync(node_path.join(opts.config.source, "./_includes/")))
-      pageOpts.filename = fs.realpathSync(node_path.join(opts.config.source, "./_includes/"))+"/.";
+    if(fs.existsSync(node_path.join(opts.source, "./_includes/")))
+      pageOpts.filename = fs.realpathSync(node_path.join(opts.source, "./_includes/"))+"/.";
     return Promise.resolve(pageOpts);
   }
 }

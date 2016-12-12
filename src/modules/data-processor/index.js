@@ -14,7 +14,7 @@ import node_path from 'path';
 import fs from 'fs';
 import Promise from 'bluebird';
 
-import Task from '../base/task'
+import Task from '../../task'
 
 export default class DataProcessor extends Task {
 
@@ -34,7 +34,7 @@ export default class DataProcessor extends Task {
   }
 
   _processFiles(opts) {
-    opts.config.data = {}
+    opts.data = {}
     return super._processFiles(opts)
   }
 
@@ -43,7 +43,7 @@ export default class DataProcessor extends Task {
       var name = node_path.basename(dest.replace("_data/", ""), node_path.extname(dest));
       delete opts.files[dest]
       return this._processDataFile(source, opts).then((data) => {
-        opts.config.data[name] = data;
+        opts.data[name] = data;
       });
     }
     return Promise.resolve();
@@ -53,7 +53,7 @@ export default class DataProcessor extends Task {
     //read file
     var data = {};
     var ext = node_path.extname(file.source).replace(".", "");
-    this.app.log.debug('this.dataParsers', this.dataParsers)
+    this.log.debug('this.dataParsers', this.dataParsers)
     if(this.dataParsers[ext]) {
       return this.dataParsers[ext](file.body)
     }

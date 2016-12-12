@@ -13,7 +13,7 @@ import node_path from 'path';
 import fs from 'fs'
 Promise.promisifyAll(fse);
 
-import Task from '../base/task'
+import Task from '../../task'
 
 export default class FileGenerator extends Task {
   
@@ -21,13 +21,9 @@ export default class FileGenerator extends Task {
     return 'generator'
   }
 
-  _order() {
-    return -1
-  }
-
   _processFile(dest, source, opts) {
-    this.app.log.debug('generating output file', dest)
-    dest = node_path.join(fs.realpathSync(opts.config.output), dest);
+    this.log.debug('generating output file', dest, opts.output)
+    dest = node_path.join(fs.realpathSync(opts.output), dest);
     return fse.copySync(source.source, dest);
   }
 }

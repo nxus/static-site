@@ -14,21 +14,22 @@ import fs from 'fs'
 import slug from 'limax'
 Promise.promisifyAll(fse);
 
-import Task from '../base/task'
-
-const defaultOpts = {
-  categorize: [
-    'posts'
-  ],
-  layout: "blog_category",
-  path: "/blog/%category%/%page%/index.html"
-}
+import Task from '../../Task' 
 
 export default class CategoryPages extends Task {
   
-  constructor(app, plugin) {
-    super(app, plugin)
-    plugin.addDefaultConfig('categoryPages', defaultOpts)
+  constructor() {
+    super()
+  }
+
+  _defaultConfig() {
+    return {
+      categorize: [
+        'posts'
+      ],
+      layout: "blog_category",
+      path: "/blog/%category%/%page%/index.html"
+    }
   }
 
   _type() {
@@ -42,8 +43,8 @@ export default class CategoryPages extends Task {
   _processFiles(opts) {
     this.categoryPages = {}
     this.categories = []
-    this.opts = opts.config.categoryPages
-    this.app.log.debug('Creating category pages')
+    this.config = opts.categoryPages
+    this.log.debug('Creating category pages')
     
     let pages = 1
     
@@ -54,16 +55,16 @@ export default class CategoryPages extends Task {
         if(!this.categoryPages[category]) this.categoryPages[category] = {}
         if(!this.categoryPages[category][pages]) this.categoryPages[category][pages] = []
         this.categoryPages[category][pages].push(p) 
-        if((index+1) % opts.config.paginator.perPage == 0) pages++
+        if((index+1) % opts.paginator.perPage == 0) pages++
       })
     })
     
     this.categories.forEach((category) => {
       var pageLink = (category, page) => {
         if(page > 1)
-          return this.opts.path.replace("%category%", slug(category)).replace("%page%", page)
+          return this.config.path.replace("%category%", slug(category)).replace("%page%", page)
         else
-          return this.opts.path.replace("%category%", slug(category)).replace("/%page%", "")
+          return this.config.path.replace("%category%", slug(category)).replace("/%page%", "")
       }
       
       var getPages = (totalPages, currentPage) => {
@@ -91,7 +92,7 @@ export default class CategoryPages extends Task {
           next_page: page < pages ? pageLink(category, page+1) : "",
           previous_page: page > 1 ? pageLink(category, page-1) : ""
         }
-        opts.files[outputPath] = {category, layout: this.opts.layout, paginator, site: opts.config, source: "index.html"}
+        opts.files[outputPath] = {category, layout: this.config.layout, paginator, site: opts, source: "index.html"}
       })
     })
   }

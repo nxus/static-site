@@ -13,7 +13,7 @@ import node_path from 'path';
 import fs from 'fs';
 import Promise from 'bluebird';
 
-import Task from '../base/task'
+import Task from '../../task'
 
 export default class LayoutProcessor extends Task {
 
@@ -23,10 +23,6 @@ export default class LayoutProcessor extends Task {
 
   _order() {
     return 3
-  }
-
-  _processFiles(opts) {
-    return super._processFiles(opts)
   }
 
   _processFile(dest, source, opts) {

@@ -28,6 +28,6 @@ let process = (content) => {
 }
 
 export default (app) => {
-  app.get('static-site').provide('data-parser', 'csv', process);
+  app.get('static-site').provide('dataParser', 'csv', process);
 }
 

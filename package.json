@@ -1,12 +1,17 @@
 {
   "name": "nxus-static-site",
-  "version": "2.4.0-5",
+  "version": "4.0.0-0",
   "description": "A static site generator for Nxus",
-  "main": "./lib",
+  "main": "lib",
   "scripts": {
-    "test": "mocha --compilers js:babel/register -R spec",
-    "compile": "babel --optional runtime -d lib/ src/",
-    "prepublish": "npm run compile"
+    "preversion": "npm test",
+    "postversion": "npm run build-docs && git push && git push --tags",
+    "test": "NODE_ENV=test mocha --recursive --compilers js:babel-register -R spec src/test/* src/modules/**/test/*",
+    "compile": "babel src --out-dir lib",
+    "prepublish": "npm run compile",
+    "postpublish": "npm run build-docs && npm run publish-docs",
+    "build-docs": "export NAME=`npm view . name`; export VERSION=`npm view . version`; documentation readme ./src/index.js --name $NAME --project-version $VERSION --readme-file ./README.md -s $NAME",
+    "publish-docs": "npm run build-docs && git add ./README.md && git commit -m 'Updated README API Docs' && git push"
   },
   "repository": {
     "type": "git",
@@ -32,24 +37,24 @@
     "limax": "^1.1.4",
     "moment": "^2.13.0",
     "moment-strftime": "^0.1.5",
+    "nxus-core": "^4.0.0-0",
+    "nxus-pipeliner": "^4.0.0-0",
+    "nxus-router": "^4.0.0-0",
+    "nxus-templater": "^4.0.0-0",
     "underscore": "^1.8.3",
     "underscore-deep-extend": "0.0.5",
     "yaml-front-matter": "^3.2.3"
   },
-  "peerDependencies": {
-    "@nxus/core": "^2.4.0-0",
-    "@nxus/router": "^2.4.0-0",
-    "@nxus/renderer": "^2.4.0-0",
-    "@nxus/pipeliner": "^2.4.0-0",
-    "nxus-md-renderer": "^2.4.0-0"
-  },
   "devDependencies": {
-    "@nxus/core": "^2.4.0-0",
-    "@nxus/pipeliner": "^2.4.0-0",
-    "babel": "^5.6.23",
-    "chai": "^3.4.1",
-    "chai-as-promised": "^5.1.0",
+    "babel-cli": "^6.9.0",
+    "babel-core": "^6.9.0",
+    "babel-plugin-transform-function-bind": "^6.8.0",
+    "babel-preset-latest": "^6",
+    "chai": "^3.5.0",
+    "chai-as-promised": "^5.2.0",
+    "documentation": "^4.0.0-beta",
     "mocha": "^2.2.5",
+    "should": "^7.0.2",
     "sinon": "^1.17.2"
   }
 }

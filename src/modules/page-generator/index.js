@@ -13,9 +13,11 @@ import node_path from 'path';
 import fs from 'fs'
 import underscoreDeepExtend from 'underscore-deep-extend'
 
+import {renderer} from 'nxus-templater/lib/modules/renderer'
+
 Promise.promisifyAll(fse);
 
-import Task from '../base/task'
+import Task from '../../task'
 
 const _renderExtensions = {
   "md": "html",
@@ -43,7 +45,7 @@ export default class PageGenerator extends Task {
   _processFile(dest, page, opts) {
     var oldDest = dest
     if(dest && dest[0] == '_') return Promise.resolve();
-    dest = node_path.join(fs.realpathSync(opts.config.output), dest);
+    dest = node_path.join(fs.realpathSync(opts.output), dest);
     
     var newExt = "html"
     var ext = node_path.extname(page.source).replace(".", "");
@@ -57,9 +59,9 @@ export default class PageGenerator extends Task {
     }
 
     if(_.contains(_.keys(_renderExtensions), ext)) {
-      this.app.log.debug('generating output page', dest)
+      this.log.debug('generating output page', dest)
       delete opts.files[oldDest];
-      page = _.extend(page, {page, site: opts.config})
+      page = _.extend(page, {page, site: opts})
       return this._renderContent(page).then((content) => {
         return fse.outputFileAsync(dest, content);
       })
@@ -68,7 +70,7 @@ export default class PageGenerator extends Task {
 
   _render (type, content, opts) {
     if(!content || content.length == 0) content = ""
-    return this.app.get('renderer').request('render', type, content, opts).then((result) => { return result; });
+    return renderer.render(type, content, opts).then((result) => { return result; });
   }
 
   _renderContent (page) {

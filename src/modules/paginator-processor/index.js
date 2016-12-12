@@ -13,22 +13,23 @@ import node_path from 'path';
 import fs from 'fs'
 Promise.promisifyAll(fse);
 
-import Task from '../base/task'
-
-const defaultOpts = {
-  perPage: 9,
-  paginate: [
-    'posts'
-  ],
-  layout: "blog",
-  path: "/blog/%page%/index.html"
-}
+import Task from '../../Task'
 
 export default class Paginator extends Task {
   
   constructor(app, plugin) {
     super(app, plugin)
-    plugin.addDefaultConfig('paginator', defaultOpts)
+  }
+
+  _defaultConfig() {
+    return {
+      perPage: 9,
+      paginate: [
+        'posts'
+      ],
+      layout: "blog",
+      path: "/blog/%page%/index.html"
+    }
   }
 
   _type() {
@@ -40,30 +41,30 @@ export default class Paginator extends Task {
   }
 
   _processFiles(opts) {
-    this.opts = opts.config.paginator
     this.pages = {}
-    return Promise.each(_.values(this.opts.paginate), (collection) => {
+    console.log(this.config)
+    return Promise.each(_.values(this.config.paginate), (collection) => {
       this._paginateCollection(collection, opts)
     })
   }
 
   _paginateCollection(collection, opts) {
-    if(!opts.config[collection]) return
-    this.app.log('paginating collection', collection)
+    if(!opts[collection]) return
+    this.log.debug('paginating collection', collection)
     if(!this.pages[collection]) this.pages[collection] = {}
     let pages = 1
-    opts.config[collection].forEach((p, index) => {
+    opts[collection].forEach((p, index) => {
       if(!this.pages[collection][pages]) this.pages[collection][pages] = []
       this.pages[collection][pages].push(p) 
-      if((index+1) % this.opts.perPage == 0) pages++
+      if((index+1) % this.config.perPage == 0) pages++
     })
-    opts.config.paginator.total_pages = pages
+    opts.paginator.total_pages = pages
     
     var pageLink = (page) => {
       if(page > 1)
-        return this.opts.path.replace("%page%", parseInt(page))
+        return this.config.path.replace("%page%", parseInt(page))
       else
-        return this.opts.path.replace("/%page%", "")
+        return this.config.path.replace("/%page%", "")
     }
     
     var getPages = (totalPages, currentPage) => {
@@ -92,7 +93,7 @@ export default class Paginator extends Task {
         next_page: page < pages ? pageLink(page+1) : "",
         previous_page: page > 1 ? pageLink(page-1) : ""
       }
-      opts.files[outputPath] = {layout: this.opts.layout, paginator: paginator, site: opts.config, source: "index.html"}
+      opts.files[outputPath] = {layout: this.config.layout, paginator: paginator, site: opts, source: "index.html"}
     })
   }
 }

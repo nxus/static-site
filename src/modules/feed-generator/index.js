@@ -13,9 +13,12 @@ import node_path from 'path';
 import fs from 'fs'
 import moment from 'moment'
 
+import {application as app} from 'nxus-core'
+
+
 Promise.promisifyAll(fse);
 
-import Task from '../base/task'
+import Task from '../../task'
 
 export default class FeedGenerator extends Task {
   _type() {
@@ -23,9 +26,9 @@ export default class FeedGenerator extends Task {
   }
 
   _processFiles(opts) {
-    return this.app.get('renderer').request('renderFile', __dirname+"/../../templates/feed.ejs", {moment, site: opts.config})
+    return app.get('renderer').request('renderFile', __dirname+"/../../../templates/feed.ejs", {moment, site: opts})
     .then((result) => { 
-      fse.outputFileAsync(node_path.join(fs.realpathSync(opts.config.output), "feed.xml"), result); 
+      fse.outputFileAsync(node_path.join(fs.realpathSync(opts.output), "feed.xml"), result); 
     });
   }
 }

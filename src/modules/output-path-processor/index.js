@@ -13,7 +13,7 @@ import Promise from 'bluebird';
 import slug from 'limax';
 import moment from 'moment-strftime';
 
-import Task from '../base/task'
+import Task from '../../task'
 
 export default class OutputPath extends Task {
 
@@ -22,11 +22,11 @@ export default class OutputPath extends Task {
   }
 
   _order() {
-    return 5
+    return 6
   }
 
   _processFile(dest, page, opts) {
-    this.app.log.debug('processing output path', dest)
+    this.log.debug('processing output path', dest)
     return this._generateOutputPath(dest, page, opts).then((outputPath) => {
       delete opts.files[dest];
       let i = 1
@@ -53,7 +53,7 @@ export default class OutputPath extends Task {
       permalink = permalink.replace("%title", (title ? "["+slug(title)+"]" : ""))
       to = moment(page.date).strftime(permalink)+".html";
     }
-    this.app.log.debug('outputpath', to)
+    this.log.debug('output path', to)
     return Promise.resolve(to)
   }
 }

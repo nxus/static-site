@@ -12,7 +12,7 @@ import node_path from 'path';
 import fs from 'fs';
 import Promise from 'bluebird';
 
-import Task from '../base/task'
+import Task from '../../task'
 
 export default class LayoutProcessor extends Task {
 

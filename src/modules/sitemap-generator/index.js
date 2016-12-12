@@ -14,7 +14,10 @@ import fs from 'fs'
 
 Promise.promisifyAll(fse);
 
-import Task from '../base/task'
+import Task from '../../task'
+
+import {renderer} from 'nxus-templater/lib/modules/renderer'
+
 
 export default class SitemapGenerator extends Task {
   _type() {
@@ -23,9 +26,9 @@ export default class SitemapGenerator extends Task {
 
   _processFiles(opts) {
     let files = _.compact(_.mapObject(opts.files, (value, key) => {if(key.indexOf('.html') > -1) return value}))
-    return this.app.get('renderer').request('renderFile', __dirname+"/../../templates/sitemap.ejs", {files, site: opts.config})
+    return renderer.request('renderFile', __dirname+"/../../../templates/sitemap.ejs", {files, site: opts})
     .then((result) => { 
-      fse.outputFileAsync(node_path.join(fs.realpathSync(opts.config.output), "sitemap.xml"), result); 
+      fse.outputFileAsync(node_path.join(fs.realpathSync(opts.output), "sitemap.xml"), result); 
     });
   }
 }

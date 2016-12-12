@@ -11,7 +11,7 @@ import node_path from 'path';
 import fs from 'fs';
 import Promise from 'bluebird';
 
-import Task from '../base/task'
+import Task from '../../task'
 
 export default class LayoutProcessor extends Task {
 
@@ -25,9 +25,10 @@ export default class LayoutProcessor extends Task {
 
   _processFiles(opts) {
     return Promise.resolve(super._processFiles(opts)).then(() => {
-      _.keys(opts.config.collections).forEach((collection) => {
-        if(opts.config[collection] && _.isArray(opts.config[collection]) && opts.config[collection].length > 0)
-          opts.config[collection] = opts.config[collection].reverse()
+      _.keys(opts.collections).forEach((collection) => {
+        this.log.debug('Processing collection', collection)
+        if(opts[collection] && _.isArray(opts[collection]) && opts[collection].length > 0)
+          opts[collection] = opts[collection].reverse()
       })
     })
   }
@@ -35,13 +36,14 @@ export default class LayoutProcessor extends Task {
   _processFile(dest, page, opts) {
     page = opts.files[dest]
     var name = dest.split(node_path.sep)[0]
-    if(_.contains(_.map(_.keys(opts.config.collections), (m) => {return "_"+m}), name)) {
+    debugger
+    if(_.contains(_.map(_.keys(opts.collections), (m) => {return "_"+m}), name)) {
       if(node_path.basename(dest)[0] != ".") {
         var newName = name;
         if(newName[0] == "_") newName = newName.slice(1, newName.length)
-        if(!opts.config[newName]) opts.config[newName] = [];
-        if(opts.config.collections[newName].path) page.path = opts.config.collections[newName].path
-        opts.config[newName].push(page)
+        if(!opts[newName]) opts[newName] = [];
+        if(opts.collections[newName].path) page.path = opts.collections[newName].path
+        opts[newName].push(page)
       }
     }
     return Promise.resolve();
