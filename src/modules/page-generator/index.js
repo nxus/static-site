@@ -17,7 +17,7 @@ import {renderer} from 'nxus-templater/lib/modules/renderer'
 
 Promise.promisifyAll(fse);
 
-import Task from '../../task'
+import Task from '../../Task'
 
 const _renderExtensions = {
   "md": "html",

@@ -13,7 +13,7 @@ import node_path from 'path';
 import fs from 'fs'
 Promise.promisifyAll(fse);
 
-import Task from '../../task'
+import Task from '../../Task'
 
 export default class FileGenerator extends Task {
   

@@ -14,7 +14,7 @@ import Promise from 'bluebird';
 
 import {renderer} from 'nxus-templater/lib/modules/renderer'
 
-import Task from '../../task'
+import Task from '../../Task'
 
 export default class Content extends Task {
 

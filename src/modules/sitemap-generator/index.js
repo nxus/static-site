@@ -14,7 +14,7 @@ import fs from 'fs'
 
 Promise.promisifyAll(fse);
 
-import Task from '../../task'
+import Task from '../../Task'
 
 import {renderer} from 'nxus-templater/lib/modules/renderer'
 

@@ -18,7 +18,7 @@ import {application as app} from 'nxus-core'
 
 Promise.promisifyAll(fse);
 
-import Task from '../../task'
+import Task from '../../Task'
 
 export default class FeedGenerator extends Task {
   _type() {

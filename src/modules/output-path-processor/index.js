@@ -13,7 +13,7 @@ import Promise from 'bluebird';
 import slug from 'limax';
 import moment from 'moment-strftime';
 
-import Task from '../../task'
+import Task from '../../Task'
 
 export default class OutputPath extends Task {
 
