@@ -38,6 +38,7 @@
     "moment": "^2.13.0",
     "moment-strftime": "^0.1.5",
     "nxus-core": "^4.0.0-0",
+    "nxus-md-renderer": "^4.0.0-0",
     "nxus-pipeliner": "^4.0.0-0",
     "nxus-router": "^4.0.0-0",
     "nxus-templater": "^4.0.0-0",
