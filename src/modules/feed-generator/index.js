@@ -26,7 +26,7 @@ export default class FeedGenerator extends Task {
   }
 
   _processFiles(opts) {
-    return app.get('renderer').request('renderFile', __dirname+"/../../../templates/feed.ejs", {moment, site: opts})
+    return app.get('renderer').request('renderFile', __dirname+"/../../../templates/feed.ejs", {moment, site: opts, config: app.config})
     .then((result) => { 
       fse.outputFileAsync(node_path.join(fs.realpathSync(opts.output), "feed.xml"), result); 
     });
