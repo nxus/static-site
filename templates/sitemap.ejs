@@ -3,7 +3,7 @@
   <% files.forEach(function(file) { %> 
     <% if(file.url) { %> 
     <url>
-      <loc><%- file.url %></loc>
+      <loc><%- config.baseUrl %><%- file.url %></loc>
       <% if(file.published) { %>
       <lastmod><%= moment(file.published).toISOString() %></lastmod>
       <% } %>
