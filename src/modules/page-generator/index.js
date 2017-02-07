@@ -39,6 +39,7 @@ export default class PageGenerator extends Task {
 
   _processFiles(opts) {
     this.layouts = opts.layouts
+    opts.processedFiles = {}
     return super._processFiles(opts)
   }
 
@@ -60,6 +61,7 @@ export default class PageGenerator extends Task {
 
     if(_.contains(_.keys(_renderExtensions), ext)) {
       this.log.debug('generating output page', dest)
+      opts.processedFiles[oldDest] = opts.files[oldDest]
       delete opts.files[oldDest];
       page = _.extend(page, {page, site: opts})
       return this._renderContent(page).then((content) => {

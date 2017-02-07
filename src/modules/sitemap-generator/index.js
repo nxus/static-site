@@ -18,6 +18,7 @@ import Task from '../../Task'
 
 import {renderer} from 'nxus-templater/lib/modules/renderer'
 
+import {application as app} from 'nxus-core'
 
 export default class SitemapGenerator extends Task {
   _type() {
@@ -25,8 +26,8 @@ export default class SitemapGenerator extends Task {
   }
 
   _processFiles(opts) {
-    let files = _.compact(_.mapObject(opts.files, (value, key) => {if(key.indexOf('.html') > -1) return value}))
-    return renderer.request('renderFile', __dirname+"/../../../templates/sitemap.ejs", {files, site: opts})
+    let files = _.compact(_.mapObject(opts.processedFiles, (value, key) => {if(key.indexOf('.html') > -1) return value}))
+    return app.get('renderer').request('renderFile', __dirname+"/../../../templates/sitemap.ejs", {files, site: opts, config: app.config})
     .then((result) => { 
       fse.outputFileAsync(node_path.join(fs.realpathSync(opts.output), "sitemap.xml"), result); 
     });
