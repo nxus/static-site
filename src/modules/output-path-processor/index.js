@@ -51,7 +51,7 @@ export default class OutputPath extends Task {
       var permalink = page.path;
       var title = page.title || 'index'
       permalink = permalink.replace("%title", (title ? "["+slug(title)+"]" : ""))
-      to = moment(page.date).strftime(permalink)+".html";
+      to = moment(page.published).strftime(permalink)+".html";
     }
     if(to[0] != '/') to = "/"+to
     this.log.debug('output path', to)
