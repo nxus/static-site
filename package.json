@@ -1,6 +1,6 @@
 {
   "name": "nxus-static-site",
-  "version": "4.0.0-6",
+  "version": "4.0.0-7",
   "description": "A static site generator for Nxus",
   "main": "lib",
   "scripts": {
