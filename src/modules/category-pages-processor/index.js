@@ -57,9 +57,11 @@ export default class CategoryPages extends Task {
         this.categoryPages[category][pages].push(p) 
         if((index+1) % opts.paginator.perPage == 0) pages++
       })
+      pages = 1
     })
     
     this.categories.forEach((category) => {
+      this.log.debug('Category processing', category)
       var pageLink = (category, page) => {
         if(page > 1)
           return this.config.path.replace("%category%", slug(category)).replace("%page%", page)
@@ -70,15 +72,15 @@ export default class CategoryPages extends Task {
       var getPages = (totalPages, currentPage) => {
         let min = currentPage < 3 ? 1 : currentPage-2;
         let max = currentPage > totalPages-3 ? totalPages : currentPage+2
-        let pages = []
+        let ps = []
         for(let i = min; i <= max; i++) {
           let p = {
             url: pageLink(category, i),
             page: i
           }
-          pages.push(p)
+          ps.push(p)
         }
-        return pages
+        return ps
       }
       _.keys(this.categoryPages[category]).forEach((page) => {
         page = parseInt(page)
